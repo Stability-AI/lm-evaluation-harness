@@ -1,19 +1,43 @@
 {
   "results": {
     "jcommonsenseqa-1.1-0.3": {
-      "acc": 0.5549597855227882,
-      "acc_stderr": 0.014863102854173759,
-      "acc_norm": 0.5120643431635389,
-      "acc_norm_stderr": 0.014949361502212136
+      "acc": 0.5540661304736372,
+      "acc_stderr": 0.014866034257323042,
+      "acc_norm": 0.5022341376228776,
+      "acc_norm_stderr": 0.014953565834041985
+    },
+    "jnli-1.1-0.3": {
+      "acc": 0.5110928512736237,
+      "acc_stderr": 0.010134260008247523,
+      "acc_norm": 0.49465899753492193,
+      "acc_norm_stderr": 0.01013617665318336
+    },
+    "marc_ja-1.1-0.3": {
+      "acc": 0.857976653696498,
+      "acc_stderr": 0.0046427800869554255,
+      "acc_norm": 0.857976653696498,
+      "acc_norm_stderr": 0.0046427800869554255
+    },
+    "jsquad-1.1-0.3": {
+      "exact_match": 24.493471409275102,
+      "f1": 32.6169342809173
     }
   },
   "versions": {
-    "jcommonsenseqa-1.1-0.3": 1.1
+    "jcommonsenseqa-1.1-0.3": 1.1,
+    "jnli-1.1-0.3": 1.1,
+    "jsquad-1.1-0.3": 1.1,
+    "marc_ja-1.1-0.3": 1.1
   },
   "config": {
     "model": "hf-causal",
-    "model_args": "pretrained=/fsx/jp-llm/instruction_tuning/outputs/stablelm-jp-instruct-1b_1.1.0/checkpoint-19113/,tokenizer=/fsx/jp-llm/tokenizers/nai-hf-tokenizer/,use_fast=False",
-    "num_fewshot": 3,
+    "model_args": "pretrained=/PATH/TO/stablelm-jp-instruct-1b_1.1.0/checkpoint-19113/,tokenizer=/PATH/TO/nai-hf-tokenizer/,use_fast=False",
+    "num_fewshot": [
+      2,
+      3,
+      3,
+      3
+    ],
     "batch_size": null,
     "device": "cuda",
     "no_cache": false,
