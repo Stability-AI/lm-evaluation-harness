@@ -1,0 +1,32 @@
+{
+  "results": {
+    "jcommonsenseqa-1.1-0.1": {
+      "acc": 0.4280607685433423,
+      "acc_stderr": 0.014798127177394435,
+      "acc_norm": 0.40214477211796246,
+      "acc_norm_stderr": 0.014664536048234703
+    },
+    "jsquad-1.1-0.1": {
+      "exact_match": 59.43268797838812,
+      "f1": 68.1015367865694
+    }
+  },
+  "versions": {
+    "jcommonsenseqa-1.1-0.1": 1.1,
+    "jsquad-1.1-0.1": 1.1
+  },
+  "config": {
+    "model": "hf-causal",
+    "model_args": "pretrained=/PATH/TO/hf_model/3b-ja50_rp50-700b,tokenizer=/PATH/TO/tokenizers/nai-hf-tokenizer/,use_fast=False",
+    "num_fewshot": [
+      2,
+      3
+    ],
+    "batch_size": null,
+    "device": "cuda",
+    "no_cache": true,
+    "limit": null,
+    "bootstrap_iters": 100000,
+    "description_dict": {}
+  }
+}

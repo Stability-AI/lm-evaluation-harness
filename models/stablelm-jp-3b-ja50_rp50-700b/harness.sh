@@ -8,4 +8,4 @@ python main.py \
     --tasks $TASK \
     --num_fewshot $NUM_FEW_SHOTS \
     --device "cuda" \
-    --output_path "models/stablelm-jp-3b-ja50_rp50-700b/result.json"
+    --output_path "models/stablelm-jp-3b-ja50_rp50-700b/result_template-0.1.json"
