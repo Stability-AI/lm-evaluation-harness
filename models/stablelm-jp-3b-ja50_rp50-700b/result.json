@@ -1,0 +1,48 @@
+{
+  "results": {
+    "jcommonsenseqa-1.1-0.2": {
+      "acc": 0.19481680071492405,
+      "acc_stderr": 0.011845125159676954,
+      "acc_norm": 0.22788203753351208,
+      "acc_norm_stderr": 0.012545153313075152
+    },
+    "jnli-1.1-0.2": {
+      "acc": 0.36442070665571075,
+      "acc_stderr": 0.009756978284439256,
+      "acc_norm": 0.3245686113393591,
+      "acc_norm_stderr": 0.00949232990976085
+    },
+    "marc_ja-1.1-0.2": {
+      "acc": 0.754863813229572,
+      "acc_stderr": 0.005721350096953308,
+      "acc_norm": 0.754863813229572,
+      "acc_norm_stderr": 0.005721350096953308
+    },
+    "jsquad-1.1-0.2": {
+      "exact_match": 56.57361548851868,
+      "f1": 66.16535210087959
+    }
+  },
+  "versions": {
+    "jcommonsenseqa-1.1-0.2": 1.1,
+    "jnli-1.1-0.2": 1.1,
+    "jsquad-1.1-0.2": 1.1,
+    "marc_ja-1.1-0.2": 1.1
+  },
+  "config": {
+    "model": "hf-causal",
+    "model_args": "pretrained=/PATH/TO/hf_model/3b-ja50_rp50-700b,tokenizer=/PATH/TO/tokenizers/nai-hf-tokenizer/,use_fast=False",
+    "num_fewshot": [
+      2,
+      3,
+      3,
+      3
+    ],
+    "batch_size": null,
+    "device": "cuda",
+    "no_cache": false,
+    "limit": null,
+    "bootstrap_iters": 100000,
+    "description_dict": {}
+  }
+}
