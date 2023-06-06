@@ -1,5 +1,6 @@
-MODEL_ARGS="pretrained=stablelm-jp-instruct-1b_1.1.0"
-TASK="jsquad-1.1-0.3,jcommonsenseqa-1.1-0.3,jnli-1.1-0.2,marc_ja-1.1-0.3"
+#!/bin/bash
+MODEL_ARGS="pretrained=/PATH/TO/stablelm-jp-instruct-1b_1.1.0/checkpoint-19113/,tokenizer=/PATH/TO/nai-hf-tokenizer/,use_fast=False"
+TASK="jsquad-1.1-0.3,jcommonsenseqa-1.1-0.3,jnli-1.1-0.3,marc_ja-1.1-0.3"
 python main.py \
     --model hf-causal \
     --model_args $MODEL_ARGS \
