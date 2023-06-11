@@ -1,0 +1,48 @@
+{
+  "results": {
+    "jcommonsenseqa-1.1-0.3": {
+      "acc": 0.7015192135835567,
+      "acc_stderr": 0.013685386698397504,
+      "acc_norm": 0.6255585344057194,
+      "acc_norm_stderr": 0.014474549079455518
+    },
+    "jnli-1.1-0.3": {
+      "acc": 0.3011503697617091,
+      "acc_stderr": 0.00930063317508552,
+      "acc_norm": 0.25842235004108466,
+      "acc_norm_stderr": 0.008875080429298606
+    },
+    "marc_ja-1.1-0.3": {
+      "acc": 0.877431906614786,
+      "acc_stderr": 0.004361701432875794,
+      "acc_norm": 0.877431906614786,
+      "acc_norm_stderr": 0.004361701432875794
+    },
+    "jsquad-1.1-0.3": {
+      "exact_match": 35.929761368752814,
+      "f1": 45.27144783040928
+    }
+  },
+  "versions": {
+    "jcommonsenseqa-1.1-0.3": 1.1,
+    "jnli-1.1-0.3": 1.1,
+    "jsquad-1.1-0.3": 1.1,
+    "marc_ja-1.1-0.3": 1.1
+  },
+  "config": {
+    "model": "hf-causal",
+    "model_args": "pretrained=/fsx/home-fujiki/outputs/exp034_open-calm-instruct-3b_1.3.0/checkpoint-10692,tokenizer=cyberagent/open-calm-3b",
+    "num_fewshot": [
+      2,
+      3,
+      3,
+      3
+    ],
+    "batch_size": null,
+    "device": "cuda",
+    "no_cache": false,
+    "limit": null,
+    "bootstrap_iters": 100000,
+    "description_dict": {}
+  }
+}
