@@ -1,0 +1,48 @@
+{
+  "results": {
+    "jcommonsenseqa-1.1-0.2": {
+      "acc": 0.2555853440571939,
+      "acc_stderr": 0.013045313758426092,
+      "acc_norm": 0.23056300268096513,
+      "acc_norm_stderr": 0.012596805983976347
+    },
+    "jnli-1.1-0.2": {
+      "acc": 0.37880032867707475,
+      "acc_stderr": 0.009834442099385492,
+      "acc_norm": 0.3648315529991783,
+      "acc_norm_stderr": 0.009759320919777338
+    },
+    "marc_ja-1.1-0.2": {
+      "acc": 0.4899186416696144,
+      "acc_stderr": 0.006648783869548029,
+      "acc_norm": 0.4899186416696144,
+      "acc_norm_stderr": 0.006648783869548029
+    },
+    "jsquad-1.1-0.2": {
+      "exact_match": 34.5114813147231,
+      "f1": 44.58786913290027
+    }
+  },
+  "versions": {
+    "jcommonsenseqa-1.1-0.2": 1.1,
+    "jnli-1.1-0.2": 1.1,
+    "jsquad-1.1-0.2": 1.1,
+    "marc_ja-1.1-0.2": 1.1
+  },
+  "config": {
+    "model": "hf-causal",
+    "model_args": "pretrained=/fsx/jp-llm/hf_model/1b-jav1-sl2k-300b,tokenizer=/fsx/jp-llm/tokenizers/nai-hf-tokenizer/,use_fast=False",
+    "num_fewshot": [
+      2,
+      3,
+      3,
+      3
+    ],
+    "batch_size": null,
+    "device": "cuda",
+    "no_cache": false,
+    "limit": null,
+    "bootstrap_iters": 100000,
+    "description_dict": {}
+  }
+}
