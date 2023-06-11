@@ -1,0 +1,48 @@
+{
+  "results": {
+    "jcommonsenseqa-1.1-0.3": {
+      "acc": 0.6747095621090259,
+      "acc_stderr": 0.014011130539224197,
+      "acc_norm": 0.6175156389633601,
+      "acc_norm_stderr": 0.014534828771100699
+    },
+    "jnli-1.1-0.3": {
+      "acc": 0.3964667214461791,
+      "acc_stderr": 0.009917059666755539,
+      "acc_norm": 0.3742810188989318,
+      "acc_norm_stderr": 0.009811095696364442
+    },
+    "marc_ja-1.1-0.3": {
+      "acc": 0.7615847187831624,
+      "acc_stderr": 0.005667436488592367,
+      "acc_norm": 0.7615847187831624,
+      "acc_norm_stderr": 0.005667436488592367
+    },
+    "jsquad-1.1-0.3": {
+      "exact_match": 51.39576767221972,
+      "f1": 60.131741985610404
+    }
+  },
+  "versions": {
+    "jcommonsenseqa-1.1-0.3": 1.1,
+    "jnli-1.1-0.3": 1.1,
+    "jsquad-1.1-0.3": 1.1,
+    "marc_ja-1.1-0.3": 1.1
+  },
+  "config": {
+    "model": "hf-causal",
+    "model_args": "pretrained=/fsx/home-fujiki/outputs/exp035_stablelm-jp-instruct-3b_1.3.0/checkpoint-10692,tokenizer=/fsx/jp-llm/tokenizers/nai-hf-tokenizer/,use_fast=False",
+    "num_fewshot": [
+      2,
+      3,
+      3,
+      3
+    ],
+    "batch_size": null,
+    "device": "cuda",
+    "no_cache": false,
+    "limit": null,
+    "bootstrap_iters": 100000,
+    "description_dict": {}
+  }
+}
