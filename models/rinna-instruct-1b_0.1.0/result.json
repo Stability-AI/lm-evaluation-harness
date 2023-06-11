@@ -1,0 +1,48 @@
+{
+  "results": {
+    "jcommonsenseqa-1.1-0.3": {
+      "acc": 0.6166219839142091,
+      "acc_stderr": 0.014541265470786009,
+      "acc_norm": 0.5120643431635389,
+      "acc_norm_stderr": 0.014949361502212126
+    },
+    "jnli-1.1-0.3": {
+      "acc": 0.2921117502054232,
+      "acc_stderr": 0.009219042365016429,
+      "acc_norm": 0.25965488907148726,
+      "acc_norm_stderr": 0.00888882393679571
+    },
+    "marc_ja-1.1-0.3": {
+      "acc": 0.7649451715599576,
+      "acc_stderr": 0.005639755149907462,
+      "acc_norm": 0.7649451715599576,
+      "acc_norm_stderr": 0.005639755149907462
+    },
+    "jsquad-1.1-0.3": {
+      "exact_match": 15.511031067086897,
+      "f1": 23.80367477675152
+    }
+  },
+  "versions": {
+    "jcommonsenseqa-1.1-0.3": 1.1,
+    "jnli-1.1-0.3": 1.1,
+    "jsquad-1.1-0.3": 1.1,
+    "marc_ja-1.1-0.3": 1.1
+  },
+  "config": {
+    "model": "hf-causal",
+    "model_args": "pretrained=/fsx/jp-llm/instruction_tuning/outputs/rinna-instruct-1b_0.1.0/checkpoint-12700,tokenizer=rinna/japanese-gpt-1b,use_fast=False",
+    "num_fewshot": [
+      2,
+      3,
+      3,
+      3
+    ],
+    "batch_size": null,
+    "device": "cuda",
+    "no_cache": false,
+    "limit": null,
+    "bootstrap_iters": 100000,
+    "description_dict": {}
+  }
+}
