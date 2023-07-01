@@ -58,6 +58,7 @@ from .ja import jcommonsenseqa
 from .ja import jnli
 from .ja import marc_ja
 from .ja import jblimp
+from .ja import xwinograd
 from .ja import xlsum_ja
 from .ja import jaqket_v2
 
@@ -330,6 +331,7 @@ TASK_REGISTRY = {
     "marc_ja": marc_ja.MARCJaWithFintanPrompt,
     **marc_ja.construct_tasks(),
     "jblimp": jblimp.JBlimp,
+    "xwinograd_ja": xwinograd.XWinogradJA,
     "xlsum_ja": xlsum_ja.XLSumJa,
     **xlsum_ja.construct_tasks(),
     "jaqket_v2": jaqket_v2.JAQKETV2,

@@ -107,11 +107,36 @@ python main.py \
 
 * \* 1-shot setting In [PaLM 2](https://arxiv.org/abs/2305.10403)
 
+## [XWinograd](https://huggingface.co/datasets/Muennighoff/xwinograd)
+
+XWinograd is a set of Winograd Schema sentence pairs. For example:
+
+- ボブはトムに尋ねた。トムはお金をいくらか貸してくれるかと。
+- ボブはトムに尋ねた。ボブはお金をいくらか貸してくれるかと。
+
+In this case the first sentence is correct, because it doesn't make sense for Bob to ask Tom how much money Bob himself will loan.
+
+The task is for the model to assign the higher log likelihood to the reasonable sentence. Because of the way the task is defined, it's always zero-shot with no prompt.
+
+While XWinograd is a multilingual task, this only uses the Japanese subset, which has 959 pairs.
+
+**sample scripts**
+
+```
+python main.py \
+    --model hf-causal \
+    --model_args $MODEL_ARGS \
+    --tasks xwinograd_ja \
+    --num_fewshot 0 \
+    --output_path result.json
+```
+
 ## [JAQKET v2](https://www.nlp.ecei.tohoku.ac.jp/projects/jaqket/)
 
 >  JApanese Questions on Knowledge of EnTitie (JAQKET)Wikipediaの記事名を答えとした，日本語のオープンドメインQAデータセットです．
 
 **sample script**
+
 ```
 python main.py \
     --model hf-causal \

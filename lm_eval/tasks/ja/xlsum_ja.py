@@ -94,7 +94,6 @@ class XLSumJa(Task):
         max_length_per_shot = max_length // len(ctxs)
         res = description
         for c in ctxs:
-            print(c)
             text, summary = c.split(summary_prompt)
             sentences = text.split("。")
             c_res = ""

@@ -1,0 +1,11 @@
+rinna/rinna-japanese-gpt-neox-3.6b-instruction-ppo pretrained=rinna/japanese-gpt-neox-3.6b-instruction-ppo,use_fast=False
+rinna/rinna-japanese-gpt-neox-3.6b-instruction-sft pretrained=rinna/japanese-gpt-neox-3.6b-instruction-sft,use_fast=False
+rinna/rinna-japanese-gpt-1b pretrained=rinna/japanese-gpt-1b,use_fast=False
+rinna/rinna-japanese-gpt-neox-3.6b-instruction-sft-v2 pretrained=rinna/japanese-gpt-neox-3.6b-instruction-sft-v2,use_fast=False
+rinna/rinna-japanese-gpt-neox-3.6b pretrained=rinna/japanese-gpt-neox-3.6b,use_fast=False
+abeja-gpt-neox-japanese-2.7b pretrained=abeja/gpt-neox-japanese-2.7b
+cyberagent/cyberagent-open-calm-medium pretrained=cyberagent/open-calm-medium,use_fast=True
+cyberagent/cyberagent-open-calm-3b pretrained=cyberagent/open-calm-3b
+cyberagent/cyberagent-open-calm-7b pretrained=cyberagent/open-calm-7b
+cyberagent/cyberagent-open-calm-large pretrained=cyberagent/open-calm-large,use_fast=True
+cyberagent/cyberagent-open-calm-1b pretrained=cyberagent/open-calm-1b
