@@ -61,6 +61,7 @@ from .ja import jblimp
 from .ja import wikilingua
 from .ja import xwinograd
 from .ja import xlsum_ja
+from .ja import jaqket_v1
 from .ja import jaqket_v2
 from .ja import mgsm
 
@@ -337,6 +338,8 @@ TASK_REGISTRY = {
     "xwinograd_ja": xwinograd.XWinogradJA,
     "xlsum_ja": xlsum_ja.XLSumJa,
     **xlsum_ja.construct_tasks(),
+    "jaqket_v1": jaqket_v1.JAQKETV1,
+    **jaqket_v1.construct_tasks(),
     "jaqket_v2": jaqket_v2.JAQKETV2,
     **jaqket_v2.construct_tasks(),
     "mgsm": mgsm.MGSM,
