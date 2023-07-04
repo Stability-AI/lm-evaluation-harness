@@ -145,3 +145,29 @@ python main.py \
     --num_fewshot "1" \
     --output_path "result.json"
 ```
+
+## [MGSM](https://huggingface.co/datasets/juletxara/mgsm)
+
+[Multilingual Grade School Math](https://arxiv.org/pdf/2210.03057.pdf) is a set of 250 math word problems in Japanese, and the task is to get the right integer solution to the problem.
+The dataset includes step-by-step solutions of example problems which are included in the prompt to induce Chain-of-Thought reasoning.
+
+The task is rather hard, with gpt3/text-davinci-002 achieving 26% accuracy at 4-shot. 
+Though this dataset was translated to Japanese by a human, some errors nonetheless occur including in the few-shot examples that are included in the prompt at every generation.
+
+The implementation here features an auto-reduction of the number of examples included in the prompt if the prompt becomes larger than the model's context length.
+
+Use mgsm-1.0-0.0 by default and mgsm-1.0-0.4 for the rinna instruction prompt.
+
+**sample scripts**
+
+Hugging Face models
+
+```
+python main.py \
+    --model hf-causal
+    --model_args $MODEL_ARGS 
+    --tasks mgsm-1.0-0.4
+    --num_fewshot "4" 
+    --device "cuda" 
+    --output_path "result.mgsm.json"
+```
