@@ -127,6 +127,27 @@ class MGSM(GradeSchoolMath8K):
                           "answer": answer, "acc": acc}
         return out
 
+class MGSMWithJAAlpacaPrompt(MGSM):
+    PROMPT_VERSION = 0.3
+    SEP = "\n"
+    DESCRIPTION = "以下は、タスクを説明する指示と、文脈のある入力の組み合わせです。要求を適切に満たす応答を書きなさい。\n\n"
+    INSTRUCTION = "与えられた問題に対して、ステップごとに答えを導き出してください。\n\n"
+    def doc_to_text(self, doc):
+        """
+        以下は、タスクを説明する指示と、文脈のある入力の組み合わせです。要求を適切に満たす応答を書きなさい。
+
+        ### 指示: 
+        {instruction}
+
+        ### 入力: 
+        {input}
+
+        ### 応答: 
+        {response}
+        """
+        input_text = f"{doc['question'].replace('問題：','')}"
+        return f"### 指示:\n{self.INSTRUCTION}### 入力:\n{input_text}\n\n### 応答:\n"
+
 
 class MGSMWithRinnaInstructionSFT(MGSM):
     """
@@ -148,6 +169,7 @@ class MGSMWithRinnaInstructionSFT(MGSM):
 
 VERSIONS = [
     MGSM,
+    MGSMWithJAAlpacaPrompt,
     MGSMWithRinnaInstructionSFT
 ]
 
