@@ -129,7 +129,6 @@ class MGSM(GradeSchoolMath8K):
 
 class MGSMWithJAAlpacaPrompt(MGSM):
     PROMPT_VERSION = 0.3
-    SEP = "\n"
     DESCRIPTION = "以下は、タスクを説明する指示と、文脈のある入力の組み合わせです。要求を適切に満たす応答を書きなさい。\n\n"
     INSTRUCTION = "与えられた問題に対して、ステップごとに答えを導き出してください。\n\n"
     def doc_to_text(self, doc):
@@ -155,17 +154,12 @@ class MGSMWithRinnaInstructionSFT(MGSM):
     - HF Hub: https://huggingface.co/rinna/japanese-gpt-neox-3.6b-instruction-sft
     """
     PROMPT_VERSION = 0.4
-    SEP = "<NL>"
-    DESCRIPTION = f"ユーザー: 与えられた問題をステップごとに解説してください。{SEP}システム: 分かりました。"
+    FEWSHOT_SEP = "<NL>"
+    DESCRIPTION = f"ユーザー: 与えられた問題をステップごとに解説してください。<NL>システム: 分かりました。<NL>"
 
     def doc_to_text(self, doc):
         input_text = f"問題：{doc['question'].replace('問題：','')}"
-        return f"{self.SEP}ユーザー: {input_text}{self.SEP}システム: ステップごとの答え："
-    
-    def preprocess_ctx(self, ctx, max_length, question_tag="問題："):
-        # the default few_shot constructor adds newlines that are not needed for rinna
-        ctx = ctx.replace('\n', '')
-        return super().preprocess_ctx(ctx, max_length, question_tag)
+        return f"ユーザー: {input_text}<NL>システム: ステップごとの答え："
 
 VERSIONS = [
     MGSM,
