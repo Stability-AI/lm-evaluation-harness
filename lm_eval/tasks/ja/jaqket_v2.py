@@ -199,7 +199,6 @@ class JAQKETV2(Task):
         return fewshot_context
 
     def preprocess_ctx(self, ctx, max_length):
-        import pdb;pdb.set_trace()
         # if ctx fits in max length, return
         if len(self.tokenizer.encode(ctx)) <= max_length:
             return ctx
