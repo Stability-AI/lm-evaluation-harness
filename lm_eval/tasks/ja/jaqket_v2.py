@@ -53,7 +53,7 @@ class JAQKETV2(Task):
     DESCRIPTION = "[題名]と[問題]から[質問]に対する[答え]を抜き出しなさい\n\n"
     SEP = "\n"
     DESCRIPTION_SEP = "\n\n"
-    EXAMPLE_SEP = "\n\n"
+    FEWSHOT_SEP = "\n\n"
     REMOVE_IDS = []
     TOP_K_LIMIT = _TOP_K_LIMIT
     FALLBACK_DOC = _FALLBACK_DOC
@@ -144,6 +144,23 @@ class JAQKETV2(Task):
     def fewshot_context(
         self, doc, num_fewshot, provide_description=None, rnd=None, description=None
     ):
+        """Returns a fewshot context string that is made up of a prepended description
+        (if provided), the `num_fewshot` number of examples, and an appended prompt example.
+
+        :param doc: str
+            The document as returned from training_docs, validation_docs, or test_docs.
+        :param num_fewshot: int
+            The number of fewshot examples to provide in the returned context string.
+        :param provide_description: bool
+            Not implemented, and this option is deprecated and will be removed in a future version in favor of a different description providing method
+        :param rnd: random.Random
+            The pseudo-random number generator used to randomly sample examples.
+            WARNING: This is currently a required arg although it's optionalized with a default `None`.
+        :param description: str
+            The task's description that will be prepended to the fewshot examples.
+        :returns: str
+            The fewshot context.
+        """
         assert (
             rnd is not None
         ), "A `random.Random` generator argument must be provided to `rnd`"
@@ -158,8 +175,15 @@ class JAQKETV2(Task):
                 "WARNING: provide_description is deprecated and will be removed in a future version in favor of description_dict"
             )
 
+        if hasattr(self, "FEWSHOT_SEP"):
+            FEWSHOT_SEP = self.FEWSHOT_SEP
+        elif hasattr(self, "SEP"):
+            FEWSHOT_SEP = f"{self.SEP}{self.SEP}"
+        else:        
+            FEWSHOT_SEP = "\n\n"
+            
         if description:
-            description += self.DESCRIPTION_SEP
+            description += FEWSHOT_SEP
         elif hasattr(self, "DESCRIPTION"):
             description = self.DESCRIPTION
         else:
@@ -185,18 +209,17 @@ class JAQKETV2(Task):
                 fewshotex = [x for x in fewshotex if x != doc][:num_fewshot]
 
             labeled_examples = (
-                f"{self.EXAMPLE_SEP}".join(
+                FEWSHOT_SEP.join(
                     [
-                        self.doc_to_answering_text(doc, fallback_doc=self.FALLBACK_DOC) + self.doc_to_target(doc)
+                        self.doc_to_answering_text(doc, self.FALLBACK_DOC) + self.doc_to_target(doc)
                         for doc in fewshotex
                     ]
                 )
-                + f"{self.EXAMPLE_SEP}"
+                + FEWSHOT_SEP
             )
 
         example = self.doc_to_text(doc)
-        fewshot_context = description + labeled_examples + example
-        return fewshot_context
+        return description + labeled_examples + example
 
     def preprocess_ctx(self, ctx, max_length):
         # if ctx fits in max length, return
@@ -205,7 +228,7 @@ class JAQKETV2(Task):
         
         # if ctx is too long, split on a tag that separates each example
         description, remainder = ctx.split(self.DESCRIPTION_SEP, 1)
-        ctxs = remainder.split(self.EXAMPLE_SEP)
+        ctxs = remainder.split(self.FEWSHOT_SEP)
 
         # if there is no example and still the prompt is too long, fail
         if len(ctxs) < 2:
@@ -215,7 +238,7 @@ class JAQKETV2(Task):
         del ctxs[0]
 
         # recurse
-        return self.preprocess_ctx(self.EXAMPLE_SEP.join([description, *ctxs]), max_length)
+        return self.preprocess_ctx(self.FEWSHOT_SEP.join([description, *ctxs]), max_length)
 
     def construct_requests(self, doc, ctx):
         if DYNAMIC_MAX_LENGTH == "false" or not hasattr(self.tokenizer, "encode"):
