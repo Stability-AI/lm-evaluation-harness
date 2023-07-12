@@ -49,11 +49,11 @@ def parse_args():
 # Returns a list containing all values of the source_list that
 # match at least one of the patterns
 def pattern_match(patterns, source_list):
-    task_names = set()
+    task_names = []
     for pattern in patterns:
         for matching in fnmatch.filter(source_list, pattern):
-            task_names.add(matching)
-    return list(task_names)
+            task_names.append(matching)
+    return task_names
 
 
 def main():
