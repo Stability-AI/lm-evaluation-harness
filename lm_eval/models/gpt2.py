@@ -1,6 +1,6 @@
 import torch
 import transformers
-from typing import Optional
+from typing import Optional, Union
 from lm_eval.base import BaseLM
 
 
@@ -11,6 +11,8 @@ class HFLM(BaseLM):
         pretrained="gpt2",
         revision="main",
         low_cpu_mem_usage=None,
+        torch_dtype: Union[str, torch.dtype] = None,
+        device_map: Union[str, dict[str, Union[int, str, torch.device]], int, torch.device] = None,
         subfolder=None,
         tokenizer=None,
         batch_size=1,
@@ -45,6 +47,8 @@ class HFLM(BaseLM):
             pretrained,
             load_in_8bit=load_in_8bit,
             low_cpu_mem_usage=low_cpu_mem_usage,
+            torch_dtype=torch_dtype,
+            device_map=device_map,
             revision=revision,
             trust_remote_code=trust_remote_code,
         ).to(self.device)
