@@ -1,53 +1,47 @@
 {
   "results": {
-    "jcommonsenseqa-1.1-0.4": {
-      "acc": 0.4137622877569258,
-      "acc_stderr": 0.014729616065392966,
-      "acc_norm": 0.4128686327077748,
-      "acc_norm_stderr": 0.014724911194650022
-    },
-    "jnli-1.1-0.4": {
-      "acc": 0.5402629416598193,
-      "acc_stderr": 0.010103836068543369,
-      "acc_norm": 0.5336894001643385,
-      "acc_norm_stderr": 0.010113718882021939
-    },
-    "marc_ja-1.1-0.4": {
-      "acc": 0.8970640254686947,
-      "acc_stderr": 0.004041623163046492,
-      "acc_norm": 0.8970640254686947,
-      "acc_norm_stderr": 0.004041623163046492
+    "xlsum_ja-1.0-0.4": {
+      "rouge2": 6.205765156746651
     },
     "jsquad-1.1-0.4": {
-      "exact_match": 53.42188203511932,
-      "f1": 64.21204580384475
+      "exact_match": 50.562809545249884,
+      "f1": 62.640375100683315
     },
-    "xlsum_ja-1.0-0.4": {
-      "rouge2": 6.539218619815743
+    "jnli-1.1-0.4": {
+      "acc": 0.5414954806902219,
+      "acc_stderr": 0.010101786233828501,
+      "acc_norm": 0.5316351684470009,
+      "acc_norm_stderr": 0.010116445249958434
     },
-    "xwinograd_ja": {
-      "acc": 0.6986444212721585,
-      "acc_stderr": 0.014824667486068461
+    "marc_ja-1.1-0.4": {
+      "acc": 0.9013088079235939,
+      "acc_stderr": 0.003966765361568662,
+      "acc_norm": 0.9013088079235939,
+      "acc_norm_stderr": 0.003966765361568662
+    },
+    "jcommonsenseqa-1.1-0.4": {
+      "acc": 0.44146559428060766,
+      "acc_stderr": 0.014850890462784903,
+      "acc_norm": 0.4262734584450402,
+      "acc_norm_stderr": 0.014790256821397247
     }
   },
   "versions": {
-    "jcommonsenseqa-1.1-0.4": 1.1,
-    "jnli-1.1-0.4": 1.1,
-    "jsquad-1.1-0.4": 1.1,
-    "marc_ja-1.1-0.4": 1.1,
     "xlsum_ja-1.0-0.4": 1.0,
-    "xwinograd_ja": 1.0
+    "jnli-1.1-0.4": 1.1,
+    "marc_ja-1.1-0.4": 1.1,
+    "jcommonsenseqa-1.1-0.4": 1.1,
+    "jsquad-1.1-0.4": 1.1
   },
   "config": {
     "model": "hf-causal",
-    "model_args": "pretrained=rinna/japanese-gpt-neox-3.6b-instruction-ppo,use_fast=False",
+    "model_args": "pretrained=rinna/japanese-gpt-neox-3.6b-instruction-ppo,use_fast=False,device_map=auto,torch_dtype=auto",
     "num_fewshot": [
       2,
       3,
       3,
       3,
-      1,
-      0
+      1
     ],
     "batch_size": null,
     "device": "cuda",
