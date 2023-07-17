@@ -52,7 +52,6 @@ class JAQKETV2(Task):
     LOAD_TOKENIZER = True
     DESCRIPTION = "[題名]と[問題]から[質問]に対する[答え]を抜き出しなさい\n\n"
     SEP = "\n"
-    DESCRIPTION_SEP = "\n\n"
     FEWSHOT_SEP = "\n\n"
     REMOVE_IDS = []
     TOP_K_LIMIT = _TOP_K_LIMIT
@@ -227,7 +226,7 @@ class JAQKETV2(Task):
             return ctx
         
         # if ctx is too long, split on a tag that separates each example
-        description, remainder = ctx.split(self.DESCRIPTION_SEP, 1)
+        description, remainder = ctx.split(self.FEWSHOT_SEP, 1)
         ctxs = remainder.split(self.FEWSHOT_SEP)
 
         # if there is no example and still the prompt is too long, fail
@@ -407,6 +406,8 @@ class JAQKETV2WithRinnaInstructionSFT(JAQKETV2):
     DESCRIPTION = "ユーザー: 与えられた文脈から、質問に対する答えを抜き出してください。<NL>システム: 分かりました。<NL>"
     SEP = "<NL>"
     FEWSHOT_SEP = "<NL>"
+    END_OF_DESCRIPTION = "システム: 分かりました。<NL>"
+    START_OF_FEWSHOT = "ユーザー: 文脈："
 
     def doc_to_text(self, doc):
         context = self.SEP.join([ctx for ctx in doc["ctxs"]["text"][:self.TOP_K_LIMIT]])
@@ -437,6 +438,26 @@ class JAQKETV2WithRinnaInstructionSFT(JAQKETV2):
         answer_candidate = "文脈：" + answering_contexts[0]["text"]
         qa_prompt = self.doc_to_qa_prompt(doc)
         return f"ユーザー: {answer_candidate}{self.SEP}質問：{doc['question']}{self.SEP}システム: "
+
+    def preprocess_ctx(self, ctx, max_length):
+        # if ctx fits in max length, return
+        if len(self.tokenizer.encode(ctx)) <= max_length:
+            return ctx
+
+        # if ctx is too long, split on a tag that separates each example
+        description, remainder = ctx.split(self.END_OF_DESCRIPTION, 1)
+        ctxs = remainder.split(self.START_OF_FEWSHOT)
+
+        # if there is no example and still the prompt is too long, fail
+        if len(ctxs) < 2:
+            raise ValueError(f"0-shot description+example doesn't fit in max length. ctx: {ctx}")
+
+        # delete the first example, last is questioning example
+        del ctxs[1]
+
+        new_ctx = self.END_OF_DESCRIPTION.join([description, self.START_OF_FEWSHOT.join(ctxs)])
+        # recurse
+        return self.preprocess_ctx(new_ctx, max_length)
 
 VERSIONS = [
     JAQKETV2,
