@@ -23,23 +23,40 @@ _CITATION = """
   note= "in Japanese"
 """
 
-_TOP_K_LIMIT = 10
+_TOP_K_LIMIT = 5
+_FALLBACK_DOC = {
+    "question": "人気漫画『ドラえもん』の登場人物で、ジャイアンの苗字は剛田ですが、スネ夫の苗字は何でしょう?",
+    "answers": [
+        "骨川"
+    ],
+    "ctxs": [
+        {
+            "id": "1075197",
+            "title": "大長編ドラえもん",
+            "text": "通常の『ドラえもん』が掲載1回毎の完結を基本としているのに対し、『大長編』は映画1作の原作となる1つの長編が数回に分けて連載され、ドラえもん・野比のび太・源静香・剛田武(ジャイアン)・骨川スネ夫の5人が編毎に異なる様々な冒険に立ち向かう様が描かれる。単行本も『ドラえもん』から独立した『大長編ドラえもん』として発行されている。",
+            "score": "34.9877",
+            "has_answer": True
+        }
+    ]
+}
 DYNAMIC_MAX_LENGTH = os.getenv("DYNAMIC_MAX_LENGTH", "true").lower()
 
 class JAQKETV2(Task):
     """
     prompt template is taken from [日本語に特化した60億パラメータ規模のGPTモデルの構築と評価](https://www.anlp.jp/proceedings/annual_meeting/2023/pdf_dir/H9-4.pdf)
     """
-    VERSION = 0.1
+    VERSION = 0.2
     PROMPT_VERSION = 0.1
     DATASET_PATH = "kumapo/JAQKET"
     DATASET_NAME = "v2.0"
     LOAD_TOKENIZER = True
     DESCRIPTION = "[題名]と[問題]から[質問]に対する[答え]を抜き出しなさい\n\n"
     SEP = "\n"
+    DESCRIPTION_SEP = "\n\n"
+    EXAMPLE_SEP = "\n\n"
     REMOVE_IDS = []
     TOP_K_LIMIT = _TOP_K_LIMIT
-   
+    FALLBACK_DOC = _FALLBACK_DOC
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -63,24 +80,54 @@ class JAQKETV2(Task):
             dataset = [item for item in dataset if item["id"] not in self.REMOVE_IDS]
         return dataset
     
+    def doc_to_qa_prompt(self, doc):
+        return (
+            "[質問]:"
+            + doc["question"]
+            + self.SEP
+            + "[答え]:"
+        )
+
     def doc_to_text(self, doc):
         topk_titles = doc["ctxs"]["title"][:self.TOP_K_LIMIT]
         topk_contexts = doc["ctxs"]["text"][:self.TOP_K_LIMIT]
-        context = f"{self.SEP}".join([
-            "[題名]:"
-            + title
-            + f"{self.SEP}"
-            + "[問題]:"
-            + context
+        answer_candidate = self.SEP.join([
+            (
+                "[題名]:"
+                + title
+                + self.SEP
+                + "[問題]:"
+                + context
+            )
             for title, context in zip(topk_titles, topk_contexts)
         ])
+        qa_prompt = self.doc_to_qa_prompt(doc)
         return (
-            context
-            + f"{self.SEP}"
-            + "[質問]:"
-            + doc["question"]
-            + f"{self.SEP}"
-            + "[答え]:"
+            answer_candidate
+            + self.SEP
+            + qa_prompt   
+        )
+
+    def doc_to_answering_text(self, doc, fallback_doc):
+        answering_contexts = [
+            {k: v[i] for k, v in doc["ctxs"].items()}
+            for i, a in enumerate(doc["ctxs"]["has_answer"]) if a == True
+        ]
+        if len(answering_contexts) < 1:
+            doc = fallback_doc
+            answering_contexts = fallback_doc["ctxs"]
+        answer_candidate = (
+            "[題名]:"
+            + answering_contexts[0]["title"]
+            + self.SEP
+            + "[問題]:"
+            + answering_contexts[0]["text"]
+        )
+        qa_prompt = self.doc_to_qa_prompt(doc)
+        return (
+            answer_candidate
+            + self.SEP
+            + qa_prompt   
         )
 
     def should_decontaminate(self):
@@ -94,6 +141,83 @@ class JAQKETV2(Task):
         answer = answer_list[0]
         return answer
 
+    def fewshot_context(
+        self, doc, num_fewshot, provide_description=None, rnd=None, description=None
+    ):
+        assert (
+            rnd is not None
+        ), "A `random.Random` generator argument must be provided to `rnd`"
+        assert not provide_description, (
+            "The `provide_description` arg will be removed in future versions. To prepend "
+            "a custom description to the context, supply the corresponding string via the "
+            "`description` arg."
+        )
+        if provide_description is not None:
+            # nudge people to not specify it at all
+            print(
+                "WARNING: provide_description is deprecated and will be removed in a future version in favor of description_dict"
+            )
+
+        if description:
+            description += self.DESCRIPTION_SEP
+        elif hasattr(self, "DESCRIPTION"):
+            description = self.DESCRIPTION
+        else:
+            description = ""
+
+        if num_fewshot == 0:
+            labeled_examples = ""
+        else:
+            # for sets with no training docs, draw from other set *but ensure no overlap with current doc*
+            if self.has_training_docs():
+                fewshotex = self.fewshot_examples(k=num_fewshot, rnd=rnd)
+            else:
+                if self._fewshot_docs is None:
+                    self._fewshot_docs = list(
+                        self.validation_docs()
+                        if self.has_validation_docs()
+                        else self.test_docs()
+                    )
+
+                fewshotex = rnd.sample(self._fewshot_docs, num_fewshot + 1)
+
+                # get rid of the doc that's the one we're evaluating, if it's in the fewshot
+                fewshotex = [x for x in fewshotex if x != doc][:num_fewshot]
+
+            labeled_examples = (
+                f"{self.EXAMPLE_SEP}".join(
+                    [
+                        self.doc_to_answering_text(doc, fallback_doc=self.FALLBACK_DOC) + self.doc_to_target(doc)
+                        for doc in fewshotex
+                    ]
+                )
+                + f"{self.EXAMPLE_SEP}"
+            )
+
+        example = self.doc_to_text(doc)
+        fewshot_context = description + labeled_examples + example
+        return fewshot_context
+
+    def preprocess_ctx(self, ctx, max_length):
+        import pdb;pdb.set_trace()
+        # if ctx fits in max length, return
+        if len(self.tokenizer.encode(ctx)) <= max_length:
+            return ctx
+        
+        # if ctx is too long, split on a tag that separates each example
+        description, remainder = ctx.split(self.DESCRIPTION_SEP, 1)
+        ctxs = remainder.split(self.EXAMPLE_SEP)
+
+        # if there is no example and still the prompt is too long, fail
+        if len(ctxs) < 2:
+            raise ValueError(f"0-shot description+example doesn't fit in max length. ctx: {ctx}")
+
+        # delete the first example, last is questioning example
+        del ctxs[0]
+
+        # recurse
+        return self.preprocess_ctx(self.EXAMPLE_SEP.join([description, *ctxs]), max_length)
+
     def construct_requests(self, doc, ctx):
         if DYNAMIC_MAX_LENGTH == "false" or not hasattr(self.tokenizer, "encode"):
             continuation = rf.greedy_until(ctx, [self.SEP])
@@ -104,9 +228,10 @@ class JAQKETV2(Task):
             else:
                 encode_params = {}
             max_num_tokens = max([len(encode_fn(answer, **encode_params)) for answer in doc["answers"]["text"]])
+            ctx = self.preprocess_ctx(ctx, max_length=self.max_length-max_num_tokens)
             continuation = rf.greedy_until(ctx, [self.SEP], max_num_tokens)
         return continuation
-    
+
     def process_results(self, doc, results):
         assert len(results) == 1, f"results should be a list with 1 str element, but is {results}"
         continuation = results[0]
@@ -162,19 +287,40 @@ class JAQKETV2WithFintanPrompt(JAQKETV2):
     PROMPT_VERSION = 0.2
     DESCRIPTION = "質問に対する回答を文章から一言で抽出してください。回答は名詞で答えてください。\n\n"
     SEP = "\n"
-    TOP_K_LIMIT = _TOP_K_LIMIT
-    def doc_to_text(self, doc):
-        context = f"{self.SEP}".join([ctx for ctx in doc["ctxs"]["text"][:self.TOP_K_LIMIT]])
+    def doc_to_qa_prompt(self, doc):
         return (
-            "文章:"
-            + context
-            + f"{self.SEP}"
-            + "質問:"
+            "質問:"
             + doc["question"]
-            + f"{self.SEP}"
+            + self.SEP
             + "回答:"
         )
-    
+
+    def doc_to_text(self, doc):
+        topk_contexts = doc["ctxs"]["text"][:self.TOP_K_LIMIT]
+        context = self.SEP.join([text for text in topk_contexts])
+        answer_candidate =  "文章:" + context
+        qa_prompt = self.doc_to_qa_prompt(doc)
+        return (
+            answer_candidate
+            + self.SEP
+            + qa_prompt   
+        )
+
+    def doc_to_answering_text(self, doc, fallback_doc):
+        answering_contexts = [
+            {k: v[i] for k, v in doc["ctxs"].items()}
+            for i, a in enumerate(doc["ctxs"]["has_answer"]) if a == True
+        ]
+        if len(answering_contexts) < 1:
+            doc = fallback_doc
+            answering_contexts = fallback_doc["ctxs"]
+        answer_candidate =  "文章:" + answering_contexts[0]["text"]
+        qa_prompt = self.doc_to_qa_prompt(doc)
+        return (
+            answer_candidate
+            + self.SEP
+            + qa_prompt
+        )
 
 class JAQKETV2WithJAAlpacaPrompt(JAQKETV2):
     """
@@ -193,7 +339,12 @@ class JAQKETV2WithJAAlpacaPrompt(JAQKETV2):
     PROMPT_VERSION = 0.3
     DESCRIPTION = "以下は、タスクを説明する指示と、文脈のある入力の組み合わせです。要求を適切に満たす応答を書きなさい。\n\n"
     INSTRUCTION = "与えられた文脈から、質問に対する答えを抜き出してください。"
-    TOP_K_LIMIT = _TOP_K_LIMIT
+    def doc_to_qa_prompt(self, doc):
+        return (
+            "質問：" 
+            + doc["question"]
+        )
+
     def doc_to_text(self, doc):
         """
         以下は、タスクを説明する指示と、文脈のある入力の組み合わせです。要求を適切に満たす応答を書きなさい。
@@ -207,10 +358,23 @@ class JAQKETV2WithJAAlpacaPrompt(JAQKETV2):
         ### 応答: 
         {response}
         """
-        context = f"{self.SEP}".join([ctx for ctx in doc["ctxs"]["text"][:self.TOP_K_LIMIT]])
-        input_text = f"文脈：{context}\n質問：{doc['question']}"
-        return f"### 指示:\n{self.INSTRUCTION}\n\n### 入力:\n{input_text}\n\n### 応答:\n"
+        topk_contexts = doc["ctxs"]["text"][:self.TOP_K_LIMIT]
+        context = self.SEP.join([text for text in topk_contexts])
+        answer_candidate = "文脈：" + context
+        qa_prompt = self.doc_to_qa_prompt(doc)
+        return f"### 指示:\n{self.INSTRUCTION}\n\n### 入力:\n{answer_candidate}\n{qa_prompt}\n\n### 応答:\n"
 
+    def doc_to_answering_text(self, doc, fallback_doc):
+        answering_contexts = [
+            {k: v[i] for k, v in doc["ctxs"].items()}
+            for i, a in enumerate(doc["ctxs"]["has_answer"]) if a == True
+        ]
+        if len(answering_contexts) < 1:
+            doc = fallback_doc
+            answering_contexts = fallback_doc["ctxs"]
+        answer_candidate = "文脈：" + answering_contexts[0]["text"]
+        qa_prompt = self.doc_to_qa_prompt(doc)
+        return f"### 指示:\n{self.INSTRUCTION}\n\n### 入力:\n{answer_candidate}\n{qa_prompt}\n\n### 応答:\n"
 
 class JAQKETV2WithRinnaInstructionSFT(JAQKETV2):
     """
@@ -219,15 +383,38 @@ class JAQKETV2WithRinnaInstructionSFT(JAQKETV2):
     """
     PROMPT_VERSION = 0.4
     DESCRIPTION = "ユーザー: 与えられた文脈から、質問に対する答えを抜き出してください。<NL>システム: 分かりました。<NL>"
-    TOP_K_LIMIT = _TOP_K_LIMIT
     SEP = "<NL>"
     FEWSHOT_SEP = "<NL>"
 
     def doc_to_text(self, doc):
         context = self.SEP.join([ctx for ctx in doc["ctxs"]["text"][:self.TOP_K_LIMIT]])
         input_text = f"文脈：{context}{self.SEP}質問：{doc['question']}"
-        return f"ユーザー: {input_text}{self.SEP}システム: "
+        return f"ユーザー: 文脈：{context}{self.SEP}質問：{doc['question']}{self.SEP}システム: "
 
+    def doc_to_qa_prompt(self, doc):
+        return (
+            "質問：" 
+            + doc["question"]
+        )
+
+    def doc_to_text(self, doc):
+        topk_contexts = doc["ctxs"]["text"][:self.TOP_K_LIMIT]
+        context = self.SEP.join([text for text in topk_contexts])
+        answer_candidate = "文脈：" + context
+        qa_prompt = self.doc_to_qa_prompt(doc)
+        return f"ユーザー: {answer_candidate}{self.SEP}質問：{doc['question']}{self.SEP}システム: "
+
+    def doc_to_answering_text(self, doc, fallback_doc):
+        answering_contexts = [
+            {k: v[i] for k, v in doc["ctxs"].items()}
+            for i, a in enumerate(doc["ctxs"]["has_answer"]) if a == True
+        ]
+        if len(answering_contexts) < 1:
+            doc = fallback_doc
+            answering_contexts = fallback_doc["ctxs"]
+        answer_candidate = "文脈：" + answering_contexts[0]["text"]
+        qa_prompt = self.doc_to_qa_prompt(doc)
+        return f"ユーザー: {answer_candidate}{self.SEP}質問：{doc['question']}{self.SEP}システム: "
 
 VERSIONS = [
     JAQKETV2,
