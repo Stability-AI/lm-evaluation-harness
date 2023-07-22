@@ -26,18 +26,14 @@ _CITATION = """
 _TOP_K_LIMIT = 5
 _FALLBACK_DOC = {
     "question": "人気漫画『ドラえもん』の登場人物で、ジャイアンの苗字は剛田ですが、スネ夫の苗字は何でしょう?",
-    "answers": [
-        "骨川"
-    ],
-    "ctxs": [
-        {
-            "id": "1075197",
-            "title": "大長編ドラえもん",
-            "text": "通常の『ドラえもん』が掲載1回毎の完結を基本としているのに対し、『大長編』は映画1作の原作となる1つの長編が数回に分けて連載され、ドラえもん・野比のび太・源静香・剛田武(ジャイアン)・骨川スネ夫の5人が編毎に異なる様々な冒険に立ち向かう様が描かれる。単行本も『ドラえもん』から独立した『大長編ドラえもん』として発行されている。",
-            "score": "34.9877",
-            "has_answer": True
-        }
-    ]
+    "answers": { "text": "骨川", "answer_start": [-1] },
+    "ctxs": {
+        "id": ["1075197"],
+        "title": ["大長編ドラえもん"],
+        "text": ["通常の『ドラえもん』が掲載1回毎の完結を基本としているのに対し、『大長編』は映画1作の原作となる1つの長編が数回に分けて連載され、ドラえもん・野比のび太・源静香・剛田武(ジャイアン)・骨川スネ夫の5人が編毎に異なる様々な冒険に立ち向かう様が描かれる。単行本も『ドラえもん』から独立した『大長編ドラえもん』として発行されている。"],
+        "score": ["34.9877"],
+        "has_answer": [True]
+    }
 }
 DYNAMIC_MAX_LENGTH = os.getenv("DYNAMIC_MAX_LENGTH", "true").lower()
 
@@ -108,19 +104,22 @@ class JAQKETV2(Task):
         )
 
     def doc_to_answering_text(self, doc, fallback_doc):
-        answering_contexts = [
-            {k: v[i] for k, v in doc["ctxs"].items()}
-            for i, a in enumerate(doc["ctxs"]["has_answer"]) if a == True
-        ]
-        if len(answering_contexts) < 1:
+        has_answer = doc["ctxs"]["has_answer"]
+        if True in has_answer:
+            answering_index = has_answer.index(True)
+            answering_contexts = {
+                k: v[answering_index:answering_index+1]
+                for k, v in doc["ctxs"].items()
+            }
+        else:
             doc = fallback_doc
             answering_contexts = fallback_doc["ctxs"]
         answer_candidate = (
             "[題名]:"
-            + answering_contexts[0]["title"]
+            + answering_contexts["title"][0]
             + self.SEP
             + "[問題]:"
-            + answering_contexts[0]["text"]
+            + answering_contexts["text"][0]
         )
         qa_prompt = self.doc_to_qa_prompt(doc)
         return (
@@ -233,10 +232,10 @@ class JAQKETV2(Task):
         if len(ctxs) < 2:
             raise ValueError(f"0-shot description+example doesn't fit in max length. ctx: {ctx}")
 
-        # delete the first example, last is questioning example
+        # delete the first example, the last includes QA prompt to be answered by lm
         del ctxs[0]
 
-        # recurse
+        # recur
         return self.preprocess_ctx(self.FEWSHOT_SEP.join([description, *ctxs]), max_length)
 
     def construct_requests(self, doc, ctx):
@@ -328,14 +327,17 @@ class JAQKETV2WithFintanPrompt(JAQKETV2):
         )
 
     def doc_to_answering_text(self, doc, fallback_doc):
-        answering_contexts = [
-            {k: v[i] for k, v in doc["ctxs"].items()}
-            for i, a in enumerate(doc["ctxs"]["has_answer"]) if a == True
-        ]
-        if len(answering_contexts) < 1:
+        has_answer = doc["ctxs"]["has_answer"]
+        if True in has_answer:
+            answering_index = has_answer.index(True)
+            answering_contexts = {
+                k: v[answering_index:answering_index+1]
+                for k, v in doc["ctxs"].items()
+            }
+        else:
             doc = fallback_doc
             answering_contexts = fallback_doc["ctxs"]
-        answer_candidate =  "文章:" + answering_contexts[0]["text"]
+        answer_candidate =  "文章:" + answering_contexts["text"][0]
         qa_prompt = self.doc_to_qa_prompt(doc)
         return (
             answer_candidate
@@ -386,14 +388,17 @@ class JAQKETV2WithJAAlpacaPrompt(JAQKETV2):
         return f"### 指示:\n{self.INSTRUCTION}\n\n### 入力:\n{answer_candidate}\n{qa_prompt}\n\n### 応答:\n"
 
     def doc_to_answering_text(self, doc, fallback_doc):
-        answering_contexts = [
-            {k: v[i] for k, v in doc["ctxs"].items()}
-            for i, a in enumerate(doc["ctxs"]["has_answer"]) if a == True
-        ]
-        if len(answering_contexts) < 1:
+        has_answer = doc["ctxs"]["has_answer"]
+        if True in has_answer:
+            answering_index = has_answer.index(True)
+            answering_contexts = {
+                k: v[answering_index:answering_index+1]
+                for k, v in doc["ctxs"].items()
+            }
+        else:
             doc = fallback_doc
             answering_contexts = fallback_doc["ctxs"]
-        answer_candidate = "文脈：" + answering_contexts[0]["text"]
+        answer_candidate = "文脈：" + answering_contexts["text"][0]
         qa_prompt = self.doc_to_qa_prompt(doc)
         return f"### 指示:\n{self.INSTRUCTION}\n\n### 入力:\n{answer_candidate}\n{qa_prompt}\n\n### 応答:\n"
 
@@ -428,14 +433,17 @@ class JAQKETV2WithRinnaInstructionSFT(JAQKETV2):
         return f"ユーザー: {answer_candidate}{self.SEP}質問：{doc['question']}{self.SEP}システム: "
 
     def doc_to_answering_text(self, doc, fallback_doc):
-        answering_contexts = [
-            {k: v[i] for k, v in doc["ctxs"].items()}
-            for i, a in enumerate(doc["ctxs"]["has_answer"]) if a == True
-        ]
-        if len(answering_contexts) < 1:
+        has_answer = doc["ctxs"]["has_answer"]
+        if True in has_answer:
+            answering_index = has_answer.index(True)
+            answering_contexts = {
+                k: v[answering_index:answering_index+1]
+                for k, v in doc["ctxs"].items()
+            }
+        else:
             doc = fallback_doc
             answering_contexts = fallback_doc["ctxs"]
-        answer_candidate = "文脈：" + answering_contexts[0]["text"]
+        answer_candidate = "文脈：" + answering_contexts["text"][0]
         qa_prompt = self.doc_to_qa_prompt(doc)
         return f"ユーザー: {answer_candidate}{self.SEP}質問：{doc['question']}{self.SEP}システム: "
 
@@ -452,11 +460,11 @@ class JAQKETV2WithRinnaInstructionSFT(JAQKETV2):
         if len(ctxs) < 2:
             raise ValueError(f"0-shot description+example doesn't fit in max length. ctx: {ctx}")
 
-        # delete the first example, last is questioning example
+        # delete the first example, the last includes QA prompt to be answered by lm
         del ctxs[1]
 
         new_ctx = self.END_OF_DESCRIPTION.join([description, self.START_OF_FEWSHOT.join(ctxs)])
-        # recurse
+        # recur
         return self.preprocess_ctx(new_ctx, max_length)
 
 VERSIONS = [
