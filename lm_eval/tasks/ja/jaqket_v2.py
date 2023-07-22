@@ -24,17 +24,6 @@ _CITATION = """
 """
 
 _TOP_K_LIMIT = 5
-_FALLBACK_DOC = {
-    "question": "人気漫画『ドラえもん』の登場人物で、ジャイアンの苗字は剛田ですが、スネ夫の苗字は何でしょう?",
-    "answers": { "text": "骨川", "answer_start": [-1] },
-    "ctxs": {
-        "id": ["1075197"],
-        "title": ["大長編ドラえもん"],
-        "text": ["通常の『ドラえもん』が掲載1回毎の完結を基本としているのに対し、『大長編』は映画1作の原作となる1つの長編が数回に分けて連載され、ドラえもん・野比のび太・源静香・剛田武(ジャイアン)・骨川スネ夫の5人が編毎に異なる様々な冒険に立ち向かう様が描かれる。単行本も『ドラえもん』から独立した『大長編ドラえもん』として発行されている。"],
-        "score": ["34.9877"],
-        "has_answer": [True]
-    }
-}
 DYNAMIC_MAX_LENGTH = os.getenv("DYNAMIC_MAX_LENGTH", "true").lower()
 
 class JAQKETV2(Task):
@@ -51,7 +40,6 @@ class JAQKETV2(Task):
     FEWSHOT_SEP = "\n\n"
     REMOVE_IDS = []
     TOP_K_LIMIT = _TOP_K_LIMIT
-    FALLBACK_DOC = _FALLBACK_DOC
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -103,17 +91,14 @@ class JAQKETV2(Task):
             + qa_prompt   
         )
 
-    def doc_to_answering_text(self, doc, fallback_doc):
+    def doc_to_answering_text(self, doc):
         has_answer = doc["ctxs"]["has_answer"]
-        if True in has_answer:
-            answering_index = has_answer.index(True)
-            answering_contexts = {
-                k: v[answering_index:answering_index+1]
-                for k, v in doc["ctxs"].items()
-            }
-        else:
-            doc = fallback_doc
-            answering_contexts = fallback_doc["ctxs"]
+        assert True in has_answer
+        answering_index = has_answer.index(True)
+        answering_contexts = {
+            k: v[answering_index:answering_index+1]
+            for k, v in doc["ctxs"].items()
+        }
         answer_candidate = (
             "[題名]:"
             + answering_contexts["title"][0]
@@ -209,7 +194,7 @@ class JAQKETV2(Task):
             labeled_examples = (
                 FEWSHOT_SEP.join(
                     [
-                        self.doc_to_answering_text(doc, self.FALLBACK_DOC) + self.doc_to_target(doc)
+                        self.doc_to_answering_text(doc) + self.doc_to_target(doc)
                         for doc in fewshotex
                     ]
                 )
@@ -326,14 +311,14 @@ class JAQKETV2WithFintanPrompt(JAQKETV2):
             + qa_prompt   
         )
 
-    def doc_to_answering_text(self, doc, fallback_doc):
+    def doc_to_answering_text(self, doc):
         has_answer = doc["ctxs"]["has_answer"]
-        if True in has_answer:
-            answering_index = has_answer.index(True)
-            answering_contexts = {
-                k: v[answering_index:answering_index+1]
-                for k, v in doc["ctxs"].items()
-            }
+        assert True in has_answer
+        answering_index = has_answer.index(True)
+        answering_contexts = {
+            k: v[answering_index:answering_index+1]
+            for k, v in doc["ctxs"].items()
+        }
         else:
             doc = fallback_doc
             answering_contexts = fallback_doc["ctxs"]
@@ -387,17 +372,14 @@ class JAQKETV2WithJAAlpacaPrompt(JAQKETV2):
         qa_prompt = self.doc_to_qa_prompt(doc)
         return f"### 指示:\n{self.INSTRUCTION}\n\n### 入力:\n{answer_candidate}\n{qa_prompt}\n\n### 応答:\n"
 
-    def doc_to_answering_text(self, doc, fallback_doc):
+    def doc_to_answering_text(self, doc):
         has_answer = doc["ctxs"]["has_answer"]
-        if True in has_answer:
-            answering_index = has_answer.index(True)
-            answering_contexts = {
-                k: v[answering_index:answering_index+1]
-                for k, v in doc["ctxs"].items()
-            }
-        else:
-            doc = fallback_doc
-            answering_contexts = fallback_doc["ctxs"]
+        assert True in has_answer
+        answering_index = has_answer.index(True)
+        answering_contexts = {
+            k: v[answering_index:answering_index+1]
+            for k, v in doc["ctxs"].items()
+        }
         answer_candidate = "文脈：" + answering_contexts["text"][0]
         qa_prompt = self.doc_to_qa_prompt(doc)
         return f"### 指示:\n{self.INSTRUCTION}\n\n### 入力:\n{answer_candidate}\n{qa_prompt}\n\n### 応答:\n"
@@ -432,17 +414,14 @@ class JAQKETV2WithRinnaInstructionSFT(JAQKETV2):
         qa_prompt = self.doc_to_qa_prompt(doc)
         return f"ユーザー: {answer_candidate}{self.SEP}質問：{doc['question']}{self.SEP}システム: "
 
-    def doc_to_answering_text(self, doc, fallback_doc):
+    def doc_to_answering_text(self, doc):
         has_answer = doc["ctxs"]["has_answer"]
-        if True in has_answer:
-            answering_index = has_answer.index(True)
-            answering_contexts = {
-                k: v[answering_index:answering_index+1]
-                for k, v in doc["ctxs"].items()
-            }
-        else:
-            doc = fallback_doc
-            answering_contexts = fallback_doc["ctxs"]
+        assert True in has_answer
+        answering_index = has_answer.index(True)
+        answering_contexts = {
+            k: v[answering_index:answering_index+1]
+            for k, v in doc["ctxs"].items()
+        }
         answer_candidate = "文脈：" + answering_contexts["text"][0]
         qa_prompt = self.doc_to_qa_prompt(doc)
         return f"ユーザー: {answer_candidate}{self.SEP}質問：{doc['question']}{self.SEP}システム: "
