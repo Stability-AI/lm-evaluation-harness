@@ -146,9 +146,10 @@ python main.py \
     --output_path result.json
 ```
 
-## [JAQKET v2](https://www.nlp.ecei.tohoku.ac.jp/projects/jaqket/)
+## [JAQKET v2](https://sites.google.com/view/project-aio/dataset#h.gv38mvfvqk77)
 
->  JApanese Questions on Knowledge of EnTitie (JAQKET)Wikipediaの記事名を答えとした，日本語のオープンドメインQAデータセットです．
+Japanese Questions on Knowledge of Entity (JAQKET) is a Japanese open-domain QA dataset where the answers are Wikipedia article titles. 
+In version 2 (v2), the dataset is designed to be more similar to a typical quiz competition by excluding answer choices and not providing the answer list used in v1. 
 
 **sample script**
 
@@ -157,6 +158,22 @@ python main.py \
     --model hf-causal \
     --model_args $MODEL_ARGS \
     --tasks "jaqket_v2" \
+    --num_fewshot "1" \
+    --output_path "result.json"
+```
+
+## [JAQKET v1](https://sites.google.com/view/project-aio/dataset#h.9lkgxzw759e3)
+
+Japanese Questions on Knowledge of Entity (JAQKET) is a Japanese open-domain QA dataset where the answers are Wikipedia article titles. 
+In version 1 (v1), Each question is accompanied by 20 candidate answers, meaning that the setup involves solving a multiple-choice question with 20 options to choose from.
+
+**sample script**
+
+```
+python main.py \
+    --model hf-causal \
+    --model_args $MODEL_ARGS \
+    --tasks "jaqket_v1" \
     --num_fewshot "1" \
     --output_path "result.json"
 ```
