@@ -7,6 +7,7 @@ Homepage: https://www.nlp.ecei.tohoku.ac.jp/projects/jaqket/
 """
 import os
 import inspect
+import datasets
 from lm_eval.base import MultipleChoiceTask, rf
 import numpy as np
 
@@ -22,7 +23,7 @@ _CITATION = """
 """
 
 DYNAMIC_MAX_LENGTH = os.getenv("DYNAMIC_MAX_LENGTH", "true").lower()
-
+TOP_K_LIMIT = 5
 
 class JAQKETV1(MultipleChoiceTask):
     """
@@ -38,6 +39,40 @@ class JAQKETV1(MultipleChoiceTask):
     ANSWERING_CONTEXT_LIMIT = CONTEXT_LIMIT // 2
     SEP = "\n"
     FEWSHOT_SEP = "\n\n"
+
+    def download(self, data_dir=None, cache_dir=None, download_mode=None):
+         """Downloads and returns the task dataset.
+         Override this method to download the dataset from a custom API.
+
+         :param data_dir: str
+             Stores the path to a local folder containing the `Task`'s data files.
+             Use this to specify the path to manually downloaded data (usually when
+             the dataset is not publicly accessible).
+         :param cache_dir: str
+             The directory to read/write the `Task` dataset. This follows the
+             HuggingFace `datasets` API with the default cache directory located at:
+                 `~/.cache/huggingface/datasets`
+             NOTE: You can change the cache location globally for a given process
+             by setting the shell environment variable, `HF_DATASETS_CACHE`,
+             to another directory:
+                 `export HF_DATASETS_CACHE="/path/to/another/directory"`
+         :param download_mode: datasets.DownloadMode
+             How to treat pre-existing `Task` downloads and data.
+             - `datasets.DownloadMode.REUSE_DATASET_IF_EXISTS`
+                 Reuse download and reuse dataset.
+             - `datasets.DownloadMode.REUSE_CACHE_IF_EXISTS`
+                 Reuse download with fresh dataset.
+             - `datasets.DownloadMode.FORCE_REDOWNLOAD`
+                 Fresh download and fresh dataset.
+         """
+         self.dataset = datasets.load_dataset(
+             path=self.DATASET_PATH,
+             name=self.DATASET_NAME,
+             data_dir=data_dir,
+             cache_dir=cache_dir,
+             download_mode=download_mode,
+             num_contexts=TOP_K_LIMIT
+         )
 
     def has_training_docs(self):
         return True
