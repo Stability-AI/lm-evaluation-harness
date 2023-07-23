@@ -23,7 +23,7 @@ _CITATION = """
   note= "in Japanese"
 """
 
-_TOP_K_LIMIT = 5
+TOP_K_LIMIT = 5
 DYNAMIC_MAX_LENGTH = os.getenv("DYNAMIC_MAX_LENGTH", "true").lower()
 
 class JAQKETV2(Task):
@@ -39,11 +39,44 @@ class JAQKETV2(Task):
     SEP = "\n"
     FEWSHOT_SEP = "\n\n"
     REMOVE_IDS = []
-    TOP_K_LIMIT = _TOP_K_LIMIT
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.jasqaud_metric = datasets.load_metric(jasquad.__file__)
+
+    def download(self, data_dir=None, cache_dir=None, download_mode=None):
+        """Downloads and returns the task dataset.
+        Override this method to download the dataset from a custom API.
+
+        :param data_dir: str
+            Stores the path to a local folder containing the `Task`'s data files.
+            Use this to specify the path to manually downloaded data (usually when
+            the dataset is not publicly accessible).
+        :param cache_dir: str
+            The directory to read/write the `Task` dataset. This follows the
+            HuggingFace `datasets` API with the default cache directory located at:
+                `~/.cache/huggingface/datasets`
+            NOTE: You can change the cache location globally for a given process
+            by setting the shell environment variable, `HF_DATASETS_CACHE`,
+            to another directory:
+                `export HF_DATASETS_CACHE="/path/to/another/directory"`
+        :param download_mode: datasets.DownloadMode
+            How to treat pre-existing `Task` downloads and data.
+            - `datasets.DownloadMode.REUSE_DATASET_IF_EXISTS`
+                Reuse download and reuse dataset.
+            - `datasets.DownloadMode.REUSE_CACHE_IF_EXISTS`
+                Reuse download with fresh dataset.
+            - `datasets.DownloadMode.FORCE_REDOWNLOAD`
+                Fresh download and fresh dataset.
+        """
+        self.dataset = datasets.load_dataset(
+            path=self.DATASET_PATH,
+            name=self.DATASET_NAME,
+            data_dir=data_dir,
+            cache_dir=cache_dir,
+            download_mode=download_mode,
+            num_contexts=TOP_K_LIMIT
+        )
 
     def has_training_docs(self):
         return True
@@ -72,8 +105,6 @@ class JAQKETV2(Task):
         )
 
     def doc_to_text(self, doc):
-        topk_titles = doc["ctxs"]["title"][:self.TOP_K_LIMIT]
-        topk_contexts = doc["ctxs"]["text"][:self.TOP_K_LIMIT]
         answer_candidate = self.SEP.join([
             (
                 "[題名]:"
@@ -82,7 +113,7 @@ class JAQKETV2(Task):
                 + "[問題]:"
                 + context
             )
-            for title, context in zip(topk_titles, topk_contexts)
+            for title, context in zip(doc["ctxs"]["title"], doc["ctxs"]["text"])
         ])
         qa_prompt = self.doc_to_qa_prompt(doc)
         return (
@@ -93,7 +124,6 @@ class JAQKETV2(Task):
 
     def doc_to_answering_text(self, doc):
         has_answer = doc["ctxs"]["has_answer"]
-        assert True in has_answer
         answering_index = has_answer.index(True)
         answering_contexts = {
             k: v[answering_index:answering_index+1]
@@ -301,8 +331,7 @@ class JAQKETV2WithFintanPrompt(JAQKETV2):
         )
 
     def doc_to_text(self, doc):
-        topk_contexts = doc["ctxs"]["text"][:self.TOP_K_LIMIT]
-        context = self.SEP.join([text for text in topk_contexts])
+        context = self.SEP.join([text for text in doc["ctxs"]["text"]])
         answer_candidate =  "文章:" + context
         qa_prompt = self.doc_to_qa_prompt(doc)
         return (
@@ -313,7 +342,6 @@ class JAQKETV2WithFintanPrompt(JAQKETV2):
 
     def doc_to_answering_text(self, doc):
         has_answer = doc["ctxs"]["has_answer"]
-        assert True in has_answer
         answering_index = has_answer.index(True)
         answering_contexts = {
             k: v[answering_index:answering_index+1]
@@ -363,15 +391,13 @@ class JAQKETV2WithJAAlpacaPrompt(JAQKETV2):
         ### 応答: 
         {response}
         """
-        topk_contexts = doc["ctxs"]["text"][:self.TOP_K_LIMIT]
-        context = self.SEP.join([text for text in topk_contexts])
+        context = self.SEP.join([text for text in doc["ctxs"]["text"]])
         answer_candidate = "文脈：" + context
         qa_prompt = self.doc_to_qa_prompt(doc)
         return f"### 指示:\n{self.INSTRUCTION}\n\n### 入力:\n{answer_candidate}\n{qa_prompt}\n\n### 応答:\n"
 
     def doc_to_answering_text(self, doc):
         has_answer = doc["ctxs"]["has_answer"]
-        assert True in has_answer
         answering_index = has_answer.index(True)
         answering_contexts = {
             k: v[answering_index:answering_index+1]
@@ -393,11 +419,6 @@ class JAQKETV2WithRinnaInstructionSFT(JAQKETV2):
     END_OF_DESCRIPTION = "システム: 分かりました。<NL>"
     START_OF_FEWSHOT = "ユーザー: 文脈："
 
-    def doc_to_text(self, doc):
-        context = self.SEP.join([ctx for ctx in doc["ctxs"]["text"][:self.TOP_K_LIMIT]])
-        input_text = f"文脈：{context}{self.SEP}質問：{doc['question']}"
-        return f"ユーザー: 文脈：{context}{self.SEP}質問：{doc['question']}{self.SEP}システム: "
-
     def doc_to_qa_prompt(self, doc):
         return (
             "質問：" 
@@ -405,15 +426,13 @@ class JAQKETV2WithRinnaInstructionSFT(JAQKETV2):
         )
 
     def doc_to_text(self, doc):
-        topk_contexts = doc["ctxs"]["text"][:self.TOP_K_LIMIT]
-        context = self.SEP.join([text for text in topk_contexts])
+        context = self.SEP.join([text for text in doc["ctxs"]["text"]])
         answer_candidate = "文脈：" + context
         qa_prompt = self.doc_to_qa_prompt(doc)
-        return f"ユーザー: {answer_candidate}{self.SEP}質問：{doc['question']}{self.SEP}システム: "
+        return f"ユーザー: {answer_candidate}{self.SEP}{qa_prompt}{self.SEP}システム: "
 
     def doc_to_answering_text(self, doc):
         has_answer = doc["ctxs"]["has_answer"]
-        assert True in has_answer
         answering_index = has_answer.index(True)
         answering_contexts = {
             k: v[answering_index:answering_index+1]
@@ -421,7 +440,7 @@ class JAQKETV2WithRinnaInstructionSFT(JAQKETV2):
         }
         answer_candidate = "文脈：" + answering_contexts["text"][0]
         qa_prompt = self.doc_to_qa_prompt(doc)
-        return f"ユーザー: {answer_candidate}{self.SEP}質問：{doc['question']}{self.SEP}システム: "
+        return f"ユーザー: {answer_candidate}{self.SEP}{qa_prompt}{self.SEP}システム: "
 
     def preprocess_ctx(self, ctx, max_length):
         # if ctx fits in max length, return
