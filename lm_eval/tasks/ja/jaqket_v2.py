@@ -243,9 +243,9 @@ class JAQKETV2(Task):
         description, remainder = ctx.split(self.FEWSHOT_SEP, 1)
         ctxs = remainder.split(self.FEWSHOT_SEP)
 
-        # if there is no example and still the prompt is too long, fail
+        # if there is no example and still the description + QA prompt is too long, fail
         if len(ctxs) < 2:
-            raise ValueError(f"0-shot description+example doesn't fit in max length. ctx: {ctx}")
+            raise ValueError(f"description + QA prompt with no example (0-shot) doesn't fit in max_length. ctx: {ctx}")
 
         # delete the first example, the last includes QA prompt to be answered by lm
         del ctxs[0]
@@ -451,9 +451,9 @@ class JAQKETV2WithRinnaInstructionSFT(JAQKETV2):
         description, remainder = ctx.split(self.END_OF_DESCRIPTION, 1)
         ctxs = remainder.split(self.START_OF_FEWSHOT)
 
-        # if there is no example and still the prompt is too long, fail
+        # if there is no example and still the description + QA prompt is too long, fail
         if len(ctxs) < 2:
-            raise ValueError(f"0-shot description+example doesn't fit in max length. ctx: {ctx}")
+            raise ValueError(f"description + QA prompt with no example (0-shot) doesn't fit in max_length. ctx: {ctx}")
 
         # delete the first example, the last includes QA prompt to be answered by lm
         del ctxs[1]
