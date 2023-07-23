@@ -32,7 +32,7 @@ class JAQKETV2(Task):
     """
     VERSION = 0.2
     PROMPT_VERSION = 0.1
-    DATASET_PATH = "lm_eval/datasets/jaqket"
+    DATASET_PATH = "kumapo/JAQKET"
     DATASET_NAME = "v2.0"
     LOAD_TOKENIZER = True
     DESCRIPTION = "[題名]と[問題]から[質問]に対する[答え]を抜き出しなさい\n\n"
