@@ -1,6 +1,8 @@
 #!/bin/bash
 set -eu
 
+JP_LLM_PATH="/fsx/proj-jp-stablegpt"
+
 if [ -z ${JP_LLM_PATH+x} ]; then
     echo "Error: The JP_LLM_PATH environment variable is not set"
     exit 1
