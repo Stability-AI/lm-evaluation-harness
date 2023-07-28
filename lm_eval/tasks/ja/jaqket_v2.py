@@ -32,7 +32,7 @@ class JAQKETV2(Task):
     """
     VERSION = 0.2
     PROMPT_VERSION = 0.1
-    DATASET_PATH = "kumapo/JAQKET"
+    DATASET_PATH = "lm_eval/datasets/jaqket"
     DATASET_NAME = "v2.0"
     LOAD_TOKENIZER = True
     DESCRIPTION = "[題名]と[問題]から[質問]に対する[答え]を抜き出しなさい\n\n"
@@ -319,9 +319,6 @@ class JAQKETV2WithFintanPrompt(JAQKETV2):
             k: v[answering_index:answering_index+1]
             for k, v in doc["ctxs"].items()
         }
-        else:
-            doc = fallback_doc
-            answering_contexts = fallback_doc["ctxs"]
         answer_candidate =  "文章:" + answering_contexts["text"][0]
         qa_prompt = self.doc_to_qa_prompt(doc)
         return (
