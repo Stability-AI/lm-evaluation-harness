@@ -1,53 +1,53 @@
 {
   "results": {
-    "jcommonsenseqa-1.1-0.2": {
-      "acc": 0.2993744414655943,
-      "acc_stderr": 0.013697125864334919,
-      "acc_norm": 0.2752457551385165,
-      "acc_norm_stderr": 0.013357795705028184
-    },
-    "jnli-1.1-0.2": {
-      "acc": 0.40838126540673786,
-      "acc_stderr": 0.009965126356916034,
-      "acc_norm": 0.3751027115858669,
-      "acc_norm_stderr": 0.009815408241248635
-    },
-    "marc_ja-1.1-0.2": {
-      "acc": 0.7912452040460412,
-      "acc_stderr": 0.005367632889806105,
-      "acc_norm": 0.7912452040460412,
-      "acc_norm_stderr": 0.005367632889806105
-    },
     "jsquad-1.1-0.2": {
-      "exact_match": 37.23547951373255,
-      "f1": 48.50349592141573
+      "exact_match": 33.40837460603332,
+      "f1": 44.33260446272521
+    },
+    "jaqket_v2-0.2-0.2": {
+      "exact_match": 32.178714859437754,
+      "f1": 37.376696540853125
     },
     "xlsum_ja": {
-      "rouge2": 1.9854375467671679
+      "rouge2": 3.562973991392969
     },
-    "xwinograd_ja": {
-      "acc": 0.6152241918665277,
-      "acc_stderr": 0.015719467393137274
+    "marc_ja-1.1-0.2": {
+      "acc": 0.7771489211177928,
+      "acc_stderr": 0.005535030291340955,
+      "acc_norm": 0.7771489211177928,
+      "acc_norm_stderr": 0.005535030291340955
+    },
+    "jcommonsenseqa-1.1-0.2": {
+      "acc": 0.28239499553172476,
+      "acc_stderr": 0.01346326287548261,
+      "acc_norm": 0.26899016979445933,
+      "acc_norm_stderr": 0.013261996572328063
+    },
+    "jnli-1.1-0.2": {
+      "acc": 0.41002465078060807,
+      "acc_stderr": 0.009971278864412706,
+      "acc_norm": 0.3475760065735415,
+      "acc_norm_stderr": 0.009654255810362845
     }
   },
   "versions": {
-    "jcommonsenseqa-1.1-0.2": 1.1,
-    "jnli-1.1-0.2": 1.1,
     "jsquad-1.1-0.2": 1.1,
     "marc_ja-1.1-0.2": 1.1,
+    "jcommonsenseqa-1.1-0.2": 1.1,
+    "jaqket_v2-0.2-0.2": 0.2,
     "xlsum_ja": 1.0,
-    "xwinograd_ja": 1.0
+    "jnli-1.1-0.2": 1.1
   },
   "config": {
     "model": "hf-causal",
     "model_args": "pretrained=cyberagent/open-calm-large,use_fast=True",
     "num_fewshot": [
+      1,
       2,
       3,
       3,
       3,
-      1,
-      0
+      1
     ],
     "batch_size": null,
     "device": "cuda",

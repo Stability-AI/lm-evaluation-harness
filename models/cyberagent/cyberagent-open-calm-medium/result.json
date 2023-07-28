@@ -1,10 +1,10 @@
 {
   "results": {
-    "jcommonsenseqa-1.1-0.2": {
-      "acc": 0.39499553172475427,
-      "acc_stderr": 0.0146202392872941,
-      "acc_norm": 0.2868632707774799,
-      "acc_norm_stderr": 0.013527046208250626
+    "marc_ja-1.1-0.2": {
+      "acc": 0.8010258224266006,
+      "acc_stderr": 0.005309848434768115,
+      "acc_norm": 0.8010258224266006,
+      "acc_norm_stderr": 0.005309848434768115
     },
     "jnli-1.1-0.2": {
       "acc": 0.4231717337715694,
@@ -12,42 +12,42 @@
       "acc_norm": 0.3972884141331142,
       "acc_norm_stderr": 0.009920570907906705
     },
-    "marc_ja-1.1-0.2": {
-      "acc": 0.8357167771189397,
-      "acc_stderr": 0.004893675823612713,
-      "acc_norm": 0.8357167771189397,
-      "acc_norm_stderr": 0.004893675823612713
+    "jcommonsenseqa-1.1-0.2": {
+      "acc": 0.40125111706881145,
+      "acc_stderr": 0.014659176826256958,
+      "acc_norm": 0.29222520107238603,
+      "acc_norm_stderr": 0.01360145843919522
+    },
+    "jaqket_v2-0.2-0.2": {
+      "exact_match": 20.481927710843372,
+      "f1": 25.567909611584305
     },
     "jsquad-1.1-0.2": {
       "exact_match": 28.725799189554255,
       "f1": 39.80333448254385
     },
     "xlsum_ja": {
-      "rouge2": 2.5775988917922406
-    },
-    "xwinograd_ja": {
-      "acc": 0.5964546402502607,
-      "acc_stderr": 0.015850834635341565
+      "rouge2": 3.2159206636353894
     }
   },
   "versions": {
-    "jcommonsenseqa-1.1-0.2": 1.1,
-    "jnli-1.1-0.2": 1.1,
-    "jsquad-1.1-0.2": 1.1,
     "marc_ja-1.1-0.2": 1.1,
+    "jaqket_v2-0.2-0.2": 0.2,
+    "jsquad-1.1-0.2": 1.1,
+    "jnli-1.1-0.2": 1.1,
     "xlsum_ja": 1.0,
-    "xwinograd_ja": 1.0
+    "jcommonsenseqa-1.1-0.2": 1.1
   },
   "config": {
     "model": "hf-causal",
     "model_args": "pretrained=cyberagent/open-calm-medium,use_fast=True",
     "num_fewshot": [
+      1,
       2,
       3,
       3,
       3,
-      1,
-      0
+      1
     ],
     "batch_size": null,
     "device": "cuda",
