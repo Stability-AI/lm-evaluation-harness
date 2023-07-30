@@ -28,6 +28,10 @@
     "xwinograd_ja": {
       "acc": 0.6037539103232534,
       "acc_stderr": 0.01580264261655725
+    },
+    "jaqket_v2-0.2-0.2": {
+      "exact_match": 16.237113402061855,
+      "f1": 22.56473051576145
     }
   },
   "versions": {
@@ -36,7 +40,8 @@
     "jsquad-1.1-0.2": 1.1,
     "marc_ja-1.1-0.2": 1.1,
     "xlsum_ja": 1.0,
-    "xwinograd_ja": 1.0
+    "xwinograd_ja": 1.0,
+    "jaqket_v2-0.2-0.2": 0.2,
   },
   "config": {
     "model": "hf-causal",
