@@ -1,0 +1,24 @@
+{
+  "results": {
+    "jaqket_v1-0.1-0.2": {
+      "acc": 0.39114391143911437,
+      "acc_stderr": 0.02969913030172107,
+      "acc_norm": 0.23247232472324722,
+      "acc_norm_stderr": 0.025706962809570782
+    }
+  },
+  "versions": {
+    "jaqket_v1-0.1-0.2": 0.1
+  },
+  "config": {
+    "model": "hf-causal",
+    "model_args": "pretrained=cyberagent/open-calm-3b,torch_dtype=auto,device_map=auto",
+    "num_fewshot": 1,
+    "batch_size": null,
+    "device": "cuda",
+    "no_cache": false,
+    "limit": null,
+    "bootstrap_iters": 100000,
+    "description_dict": {}
+  }
+}

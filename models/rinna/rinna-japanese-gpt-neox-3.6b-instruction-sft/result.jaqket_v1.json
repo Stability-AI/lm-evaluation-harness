@@ -1,0 +1,24 @@
+{
+  "results": {
+    "jaqket_v1-0.1-0.4": {
+      "acc": 0.2952029520295203,
+      "acc_stderr": 0.027759427437164075,
+      "acc_norm": 0.16236162361623616,
+      "acc_norm_stderr": 0.0224433712718903
+    }
+  },
+  "versions": {
+    "jaqket_v1-0.1-0.4": 0.1
+  },
+  "config": {
+    "model": "hf-causal",
+    "model_args": "pretrained=rinna/japanese-gpt-neox-3.6b-instruction-sft,use_fast=False,torch_dtype=auto,device_map=auto",
+    "num_fewshot": 1,
+    "batch_size": null,
+    "device": "cuda",
+    "no_cache": false,
+    "limit": null,
+    "bootstrap_iters": 100000,
+    "description_dict": {}
+  }
+}
