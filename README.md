@@ -79,7 +79,8 @@ This project provides a unified framework to test generative language models on 
 Features:
 
 - 200+ tasks implemented. See the [task-table](./docs/task_table.md) for a complete list.
-- Support for the Hugging Face `transformers` library, GPT-NeoX, Megatron-DeepSpeed, and the OpenAI API, with flexible tokenization-agnostic interface.
+- Support for models loaded via [transformers](https://github.com/huggingface/transformers/) (including quantization via [AutoGPTQ](https://github.com/PanQiWei/AutoGPTQ)), [GPT-NeoX](https://github.com/EleutherAI/gpt-neox), and [Megatron-DeepSpeed](https://github.com/microsoft/Megatron-DeepSpeed/), with a flexible tokenization-agnostic interface.
+
 - Support for evaluation on adapters (e.g. LoRa) supported in [Hugging Face's PEFT library](https://github.com/huggingface/peft).
 - Task versioning to ensure reproducibility.
 
@@ -97,6 +98,12 @@ To install additional multilingual tokenization and text segmentation packages, 
 
 ```bash
 pip install -e ".[multilingual]"
+```
+
+To support loading GPTQ quantized models, install the package with the `auto-gptq` extra:
+
+```bash
+pip install -e ".[auto-gptq]"
 ```
 
 ## Basic Usage
@@ -172,6 +179,30 @@ python write_out.py \
 ```
 
 This will write out one text file for each task.
+
+## Advanced Usage
+
+For models loaded with the HuggingFace  `transformers` library, any arguments provided via `--model_args` get passed to the relevant constructor directly. This means that anything you can do with `AutoModel` can be done with our library. For example, you can pass a local path via `pretrained=` or use models finetuned with [PEFT](https://github.com/huggingface/peft) by taking the call you would run to evaluate the base model and add `,peft=PATH` to the `model_args` argument:
+```bash
+python main.py \
+    --model hf-causal-experimental \
+    --model_args pretrained=EleutherAI/gpt-j-6b,peft=nomic-ai/gpt4all-j-lora \
+    --tasks openbookqa,arc_easy,winogrande,hellaswag,arc_challenge,piqa,boolq \
+    --device cuda:0
+```
+
+GPTQ quantized models can be loaded by specifying their file names in `,quantized=NAME` (or `,quantized=True` for default names) in the `model_args` argument:
+
+```bash
+python main.py \
+    --model hf-causal-experimental \
+    --model_args pretrained=model-name-or-path,quantized=model.safetensors,gptq_use_triton=True \
+    --tasks hellaswag
+```
+
+We support wildcards in task names, for example you can run all of the machine-translated lambada tasks via `--task lambada_openai_mt_*`.
+
+We currently only support one prompt per task, which we strive to make the "standard" as defined by the benchmark's authors. If you would like to study how varying prompts causes changes in the evaluation score, check out the [BigScience fork](https://github.com/bigscience-workshop/lm-evaluation-harness) of this repo. We are currently working on upstreaming this capability to `main`.
 
 ## Implementing new tasks
 

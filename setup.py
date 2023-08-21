@@ -51,5 +51,6 @@ setuptools.setup(
             "fugashi[unidic-lite]",
             "mojimoji>=0.0.12",
         ]
+        "auto-gptq": ["auto-gptq[triton] @ git+https://github.com/PanQiWei/AutoGPTQ"],
     },
 )
