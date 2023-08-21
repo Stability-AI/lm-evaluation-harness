@@ -235,7 +235,7 @@ class HuggingFaceAutoLM(BaseLM):
         self,
         *,
         pretrained: str,
-        quantized: Optional[Union[True, str]] = None,
+        quantized: Optional[Union[bool, str]] = None,
         revision: str,
         subfolder: str,
         device_map: Optional[Union[str, _DeviceMapping]] = None,
