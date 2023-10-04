@@ -41,7 +41,7 @@
         --tasks $TASK \
         --num_fewshot "2,3,3,3" \
         --device "cuda" \
-        --output_path "result/result.json"
+        --output_path "result.json"
     ```
 
 4. Run! 
