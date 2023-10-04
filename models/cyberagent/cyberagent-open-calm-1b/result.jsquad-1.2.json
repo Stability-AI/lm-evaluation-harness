@@ -1,0 +1,22 @@
+{
+  "results": {
+    "jsquad-1.2-0.2": {
+      "exact_match": 39.53174245835209,
+      "f1": 49.49399460234075
+    }
+  },
+  "versions": {
+    "jsquad-1.2-0.2": 1.2
+  },
+  "config": {
+    "model": "hf-causal",
+    "model_args": "pretrained=cyberagent/open-calm-1b",
+    "num_fewshot": 3,
+    "batch_size": null,
+    "device": "cuda",
+    "no_cache": false,
+    "limit": null,
+    "bootstrap_iters": 100000,
+    "description_dict": {}
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "results": {
+    "jsquad-1.2-0.2": {
+      "exact_match": 49.0094552003602,
+      "f1": 59.80363888369063
+    }
+  },
+  "versions": {
+    "jsquad-1.2-0.2": 1.2
+  },
+  "config": {
+    "model": "hf-causal",
+    "model_args": "pretrained=rinna/japanese-gpt-neox-3.6b,use_fast=False,device_map=auto,torch_dtype=auto",
+    "num_fewshot": 2,
+    "batch_size": null,
+    "device": "cuda",
+    "no_cache": false,
+    "limit": null,
+    "bootstrap_iters": 100000,
+    "description_dict": {}
+  }
+}

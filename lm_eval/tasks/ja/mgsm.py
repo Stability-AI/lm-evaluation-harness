@@ -41,50 +41,24 @@ class MGSM(GradeSchoolMath8K):
         # ステップごとの答え： is in text instead of target
         # so that the model doesn't have to generate it
         return "" + doc["answer"].replace('ステップごとの答え：','')
-  
+
+    def fewshot_context(self, doc, num_fewshot, **kwargs):
+        max_length = self.max_length - self.max_gen_toks
+
+        # If the prompt is too long with fewshot examples, reduce the number of
+        # examples until it fits.
+        while num_fewshot >= 0:
+            ctx = super().fewshot_context(doc, num_fewshot, **kwargs)
+            if len(self._tokenize(ctx)) <= max_length:
+                doc["context"] = ctx
+                return ctx
+            num_fewshot -= 1
+
+        # if we got here then even 0 fewshot is too long
+        return ValueError(f"0-shot prompt is too long for max length {max_length}:\n{ctx}")
+
     def construct_requests(self, doc, ctx):
-        # trim n-shot examples from the context until it fits in max length
-        ctx = self.preprocess_ctx(ctx, max_length=self.max_length-self.max_gen_toks)
-
-        # add this trimmed context to the doc for logging
-        doc['context'] = ctx
-
         return rf.greedy_until(ctx, [self.tokenizer.eos_token, self.SEP], self.max_gen_toks)
-
-    def preprocess_ctx(self, ctx, max_length, question_tag="問題："):
-        """Remove n-shot examples from the context until it fits in max length
-
-        Args:
-            ctx (str): the prompt and n-shot examples 
-            max_length (int): the max number of tokens allocated for the prompt and examples
-            question_tag (str, optional): A string that occurs before every n-shot example 
-                and before the final question. Used to split the context. It is ok to if a common string like
-                User: occurs before this tag.
-                Defaults to "問題：".
-
-        Raises:
-            ValueError: If the prompt doesn't fit in max length at 0-shot
-
-        Returns:
-            str: context which fits in max length
-        """
-
-        # if ctx fits in max length, return
-        if len(self._tokenize(ctx)) <= max_length:
-            return ctx
-
-        # if ctx is too long, split on a tag that separates each example
-        ctxs = ctx.split(question_tag)
-
-        # if there is no example and still the prompt is too long, fail
-        if len(ctxs) < 2:
-            raise ValueError(f"0-shot description+question doesn't fit in max length. ctx: {ctx}")
-        
-        # delete the first example
-        del ctxs[1]
-
-        # recurse
-        return self.preprocess_ctx(question_tag.join(ctxs), max_length, question_tag)
 
     def _tokenize(self, text, **kwargs):
         encode_fn = self.tokenizer.encode

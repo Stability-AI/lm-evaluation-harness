@@ -1,0 +1,22 @@
+{
+  "results": {
+    "jsquad-1.2-0.3": {
+      "exact_match": 59.92796037820801,
+      "f1": 70.8236875084182
+    }
+  },
+  "versions": {
+    "jsquad-1.2-0.3": 1.2
+  },
+  "config": {
+    "model": "hf-causal-experimental",
+    "model_args": "pretrained=meta-llama/Llama-2-7b-hf,use_accelerate=True,dtype=auto",
+    "num_fewshot": 2,
+    "batch_size": 2,
+    "device": "cuda",
+    "no_cache": false,
+    "limit": null,
+    "bootstrap_iters": 100000,
+    "description_dict": {}
+  }
+}

@@ -33,11 +33,7 @@ Task sections just contain the `fewshot` parameter for now.
 Configs support inheritance. The file at `models/harness.conf` specifies global defaults, while files for each model group can define options not specific for a model. These files are usually the most detailed, since task and prompt selection are usually consistent for a model group.
 """
 
-def generate_harness(model_dir):
-    path = Path(model_dir).absolute()
-    if path.is_file():
-        # if we specified a file for some reason, just take the dir
-        path = path.parent
+def generate_harness(path):
 
     # grandparent is global config, parent is org config.
     # it's ok if they don't exist.
@@ -59,8 +55,14 @@ def generate_harness(model_dir):
     # args are technically not required
     args = conf["model"].get("args")
     model_args = f"pretrained={model_path}"
+
+    if tokenizer in ("''", '""'):
+        tokenizer = None
     if tokenizer:
         model_args += "," + f"tokenizer={tokenizer}"
+
+    if args in ("''", '""'):
+        args = None
     if args:
         model_args += "," + args
 
@@ -106,8 +108,21 @@ if __name__ == "__main__":
             )
 
     parser.add_argument("model_path")
+    parser.add_argument("-w", "--write", action="store_true",
+            help="write harness script to default location")
 
     args = parser.parse_args()
-    cmd = generate_harness(args.model_path)
+    path = Path(args.model_path).absolute()
+    if path.is_file():
+        # if we specified a file for some reason, just take the dir
+        path = path.parent
+
+    cmd = generate_harness(path)
     print(cmd)
+    if args.write:
+        opath = path / "harness.sh"
+        with open(opath, "w") as ofile:
+            ofile.write(cmd)
+        print(f"wrote script to: {opath}")
+
 

@@ -137,12 +137,21 @@ class XLSumJa(Task):
     def process_results(self, doc, results):
         continuation = results[0]
         ground_truth = doc["summary"]
-        return {
+        out = {
             "rouge2": (
                 continuation,
                 ground_truth,
             )
         }
+        # add verbose output
+        out["details"] = {
+            # this isn't really a question, but keeping it this way for
+            # consistency
+            "question": doc["text"],
+            "response": continuation,
+            "gold": doc["summary"]
+        }
+        return out
     
     def aggregation(self):
         return {

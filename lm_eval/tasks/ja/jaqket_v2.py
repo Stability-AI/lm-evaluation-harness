@@ -279,7 +279,7 @@ class JAQKETV2(Task):
             "id": doc["qid"],
             "answers": doc["answers"],
         }
-        return {
+        out = {
             "exact_match": (
                 predictions,
                 references,
@@ -289,6 +289,16 @@ class JAQKETV2(Task):
                 references,
             ),  # The F-score of predicted tokens versus the gold answer
         }
+
+        # add details. Because the metric computation isn't simple (probably?)
+        # always include it.
+        out["details"] = {
+            "question": doc["question"],
+            "response": continuation,
+            "gold": doc["answers"]
+        }
+
+        return out
 
 
     def aggregation(self):
