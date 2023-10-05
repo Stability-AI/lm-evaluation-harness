@@ -103,6 +103,7 @@ pip install -e ".[multilingual]"
 To support loading GPTQ quantized models, install the package with the `auto-gptq` extra:
 
 ```bash
+pip install gekko
 pip install -e ".[auto-gptq]"
 ```
 
