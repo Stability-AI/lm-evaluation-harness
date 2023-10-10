@@ -16,6 +16,7 @@ from .jsquad import (
     JSQuADWithJAAlpacaPrompt,
     JSQuADWithRinnaInstructionSFT,
     JSQuADWithRinnaBilingualInstructionSFT,
+    JSQuADWithLlama2,
 )
 
 
@@ -75,12 +76,17 @@ class JaQuADWithRinnaBilingualInstructionSFT(
     PROMPT_VERSION = 0.5
 
 
+class JaQuADWithLlama2(JSQuADWithLlama2, JaQuAD):
+    PROMPT_VERSION = 0.6
+
+
 VERSIONS = [
     JaQuAD,
     JaQuADWithFintanPrompt,
     JaQuADWithJAAlpacaPrompt,
     JaQuADWithRinnaInstructionSFT,
     JaQuADWithRinnaBilingualInstructionSFT,
+    JaQuADWithLlama2,
 ]
 
 

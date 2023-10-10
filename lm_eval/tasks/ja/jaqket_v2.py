@@ -470,12 +470,58 @@ class JAQKETV2WithRinnaBilingualInstructionSFT(JAQKETV2WithRinnaInstructionSFT):
     FEWSHOT_SEP = "\n"
 
 
+class JAQKETV2WithLlama2(JAQKETV2WithJAAlpacaPrompt):
+    """
+    This prompt version follows the Llama2-chat's prompt format:
+    ```
+    <s>[INST] <<SYS>>
+    {{ system_prompt }}
+    <</SYS>>
+
+    {{ user_msg_1 }} [/INST] {{ model_answer_1 }} </s><s>[INST] {{ user_msg_2 }} [/INST]
+    ```
+    reference: https://huggingface.co/blog/llama2#how-to-prompt-llama-2
+    """
+
+    PROMPT_VERSION = 0.6
+    DEFAULT_SYSTEM_PROMPT = """You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe.  Your answers should not include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content. Please ensure that your responses are socially unbiased and positive in nature.\n\nIf a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don't know the answer to a question, please don't share false information."""
+    SYSTEM_PROMPT = os.getenv("SYSTEM_PROMPT", DEFAULT_SYSTEM_PROMPT)
+    DESCRIPTION = f"<s>[INST] <<SYS>>\n{SYSTEM_PROMPT}\n<</SYS>>\n\n"
+    FEWSHOT_SEP = " </s><s>[INST] "
+
+    def doc_to_text(self, doc):
+        """
+        Insert the following prompt into `{{ user_msg }}`, which is based on prompt version 0.3
+        ```
+        与えられた文脈から、質問に対する答えを抜き出してください。
+
+        文脈：{context}
+        質問：{question} [/INST]
+        ```
+        """
+        context = self.SEP.join([text for text in doc["ctxs"]["text"]])
+        answer_candidate = "文脈：" + context
+        qa_prompt = self.doc_to_qa_prompt(doc)
+        return f"{self.INSTRUCTION}\n\n{answer_candidate}\n{qa_prompt} [/INST] "
+
+    def doc_to_answering_text(self, doc):
+        has_answer = doc["ctxs"]["has_answer"]
+        answering_index = has_answer.index(True)
+        answering_contexts = {
+            k: v[answering_index : answering_index + 1] for k, v in doc["ctxs"].items()
+        }
+        answer_candidate = "文脈：" + answering_contexts["text"][0]
+        qa_prompt = self.doc_to_qa_prompt(doc)
+        return f"{self.INSTRUCTION}\n\n{answer_candidate}\n{qa_prompt} [/INST] "
+
+
 VERSIONS = [
     JAQKETV2,
     JAQKETV2WithFintanPrompt,
     JAQKETV2WithJAAlpacaPrompt,
     JAQKETV2WithRinnaInstructionSFT,
     JAQKETV2WithRinnaBilingualInstructionSFT,
+    JAQKETV2WithLlama2,
 ]
 
 

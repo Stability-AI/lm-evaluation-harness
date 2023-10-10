@@ -367,6 +367,59 @@ class JSQuADWithRinnaBilingualInstructionSFTV12(JSQuADWithRinnaBilingualInstruct
         return f"ユーザー: {input_text}{self.SEP}システム: "
 
 
+class JSQuADWithLlama2(JSQuAD):
+    """
+    This prompt version follows the Llama2-chat's prompt format:
+    ```
+    <s>[INST] <<SYS>>
+    {{ system_prompt }}
+    <</SYS>>
+
+    {{ user_msg_1 }} [/INST] {{ model_answer_1 }} </s><s>[INST] {{ user_msg_2 }} [/INST]
+    ```
+    reference: https://huggingface.co/blog/llama2#how-to-prompt-llama-2
+    """
+
+    PROMPT_VERSION = 0.6
+    DEFAULT_SYSTEM_PROMPT = """You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe.  Your answers should not include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content. Please ensure that your responses are socially unbiased and positive in nature.\n\nIf a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don't know the answer to a question, please don't share false information."""
+    SYSTEM_PROMPT = os.getenv("SYSTEM_PROMPT", DEFAULT_SYSTEM_PROMPT)
+    DESCRIPTION = f"<s>[INST] <<SYS>>\n{SYSTEM_PROMPT}\n<</SYS>>\n\n"
+    INSTRUCTION = "与えられた文脈から、質問に対する答えを抜き出してください。"
+    FEWSHOT_SEP = " </s><s>[INST] "
+
+    def doc_to_text(self, doc):
+        """
+        Insert the following prompt into `{{ user_msg }}`
+        ```
+        与えられた文脈から、質問に対する答えを抜き出してください。
+
+        文脈：...
+        質問：... [/INST]
+        ```
+        """
+        input_text = (
+            f"文脈：{doc['context'].split('[SEP]')[-1].strip()}\n質問：{doc['question']}"
+        )
+        return f"{self.INSTRUCTION}\n\n{input_text} [/INST] "
+
+
+class JSQuADWithLlama2V12(JSQuADWithLlama2):
+    VERSION = 1.2
+
+    def doc_to_text(self, doc):
+        """
+        Insert the following prompt into `{{ user_msg }}`
+        ```
+        与えられた文脈から、質問に対する答えを抜き出してください。
+
+        文脈：...
+        質問：... [/INST]
+        ```
+        """
+        input_text = f"文脈：{doc['title']}\n{doc['context'].split('[SEP]')[-1].strip()}\n質問：{doc['question']}"
+        return f"{self.INSTRUCTION}\n\n{input_text} [/INST] "
+
+
 VERSIONS = [
     JSQuAD,
     JSQuADWithFintanPrompt,
@@ -377,6 +430,8 @@ VERSIONS = [
     JSQuADWithRinnaInstructionSFTV12,
     JSQuADWithRinnaBilingualInstructionSFT,
     JSQuADWithRinnaBilingualInstructionSFTV12,
+    JSQuADWithLlama2,
+    JSQuADWithLlama2V12,
 ]
 
 

@@ -7,6 +7,7 @@ JGLUE has been constructed from scratch without translation.
 
 Homepage: https://github.com/yahoojapan/JGLUE
 """
+import os
 from lm_eval.base import BalancedMultipleChoiceTask, rf
 
 _CITATION = """
@@ -154,11 +155,44 @@ class MARCJaWithRinnaBilingualInstructionSFT(MARCJaWithRinnaInstructionSFT):
     FEWSHOT_SEP = "\n"
 
 
+class MARCJaWithLlama2(MARCJaWithJAAlpacaPrompt):
+    """
+    This prompt version follows the Llama2-chat's prompt format:
+    ```
+    <s>[INST] <<SYS>>
+    {{ system_prompt }}
+    <</SYS>>
+
+    {{ user_msg_1 }} [/INST] {{ model_answer_1 }} </s><s>[INST] {{ user_msg_2 }} [/INST]
+    ```
+    reference: https://huggingface.co/blog/llama2#how-to-prompt-llama-2
+    """
+
+    PROMPT_VERSION = 0.6
+    DEFAULT_SYSTEM_PROMPT = """You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe.  Your answers should not include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content. Please ensure that your responses are socially unbiased and positive in nature.\n\nIf a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don't know the answer to a question, please don't share false information."""
+    SYSTEM_PROMPT = os.getenv("SYSTEM_PROMPT", DEFAULT_SYSTEM_PROMPT)
+    DESCRIPTION = f"<s>[INST] <<SYS>>\n{SYSTEM_PROMPT}\n<</SYS>>\n\n"
+    FEWSHOT_SEP = " </s><s>[INST] "
+
+    def doc_to_text(self, doc):
+        """
+        Insert the following prompt into `{{ user_msg }}`, which is based on prompt version 0.3
+        ```
+        以下の製品レビューを、ポジティブまたはネガティブの感情クラスのいずれかに分類してください。
+
+        {query} [/INST]
+        ```
+        """
+        input_text = doc["query"]
+        return f"{self.INSTRUCTION}\n\n{input_text} [/INST] "
+
+
 VERSIONS = [
     MARCJaWithFintanPrompt,
     MARCJaWithJAAlpacaPrompt,
     MARCJaWithRinnaInstructionSFT,
     MARCJaWithRinnaBilingualInstructionSFT,
+    MARCJaWithLlama2,
 ]
 
 
