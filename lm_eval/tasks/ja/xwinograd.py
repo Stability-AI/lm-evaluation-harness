@@ -26,7 +26,7 @@ _CITATION = """
 
 class XWinograd(Task):
     VERSION = 1.0
-    DATASET_PATH = "juletxara/xwinograd"
+    DATASET_PATH = "polm-stability/xwinograd-ja"
 
     # data samples have sentence1, sentence2, and answer keys.
     # answer is 1 or 2 (as strings).
