@@ -668,7 +668,6 @@ class Task(abc.ABC):
             )
 
         example = self.doc_to_text(doc)
-        raise RuntimeError(description + labeled_examples + example)
         return description + labeled_examples + example
 
     def set_tokenizer(self, tokenizer):
