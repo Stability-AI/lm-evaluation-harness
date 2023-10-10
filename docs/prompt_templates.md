@@ -120,11 +120,11 @@ This is intended to use for [rinna/bilingual-gpt-neox-4b-instruction-sft](https:
 
 
 ## `0.6`
-This is intended to used for Llama2-chat variants 
+This is intended to used for Llama2-chat variants
 
 - **Reference:** https://huggingface.co/blog/llama2#how-to-prompt-llama-2
 - **Supported Tasks:** `jsquad`, `jaquad`, `jcommonsenseqa`, `jnli`, `marc_ja`, `jaqket_v2`, `xlsum_ja`, `mgsm`
-- **Usage:** Set the correct system prompt to an envrionment variable `SYSTEM_PROMPT`. 
+- **Usage:** Set the correct system prompt to an envrionment variable `SYSTEM_PROMPT`.
 - **Format:**
   e.g. JCommonsenseQA
   ```
