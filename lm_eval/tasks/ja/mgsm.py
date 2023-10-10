@@ -24,7 +24,6 @@ ANS_RE = re.compile(r"(\-?[0-9\.\,]+)")
 
 
 class MGSM(GradeSchoolMath8K):
-
     DATASET_PATH = "juletxara/mgsm"
     DATASET_NAME = "ja"
 
@@ -135,7 +134,7 @@ class MGSMWithJAAlpacaPrompt(MGSM):
         {response}
         """
         input_text = f"{doc['question'].replace('問題：','')}"
-        return f"### 指示:\n{self.INSTRUCTION}### 入力:\n{input_text}\n\n### 応答:\n"
+        return f"### 指示:\n{self.INSTRUCTION}\n\n### 入力:\n{input_text}\n\n### 応答:\n"
 
 
 class MGSMWithRinnaInstructionSFT(MGSM):
