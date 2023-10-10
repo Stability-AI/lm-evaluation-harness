@@ -117,3 +117,26 @@ This is intended to use for [rinna/bilingual-gpt-neox-4b-instruction-sft](https:
   システム: {answer}
   ```
   For formats for other tasks, please see `lm_eval/tasks/TASK.py`.
+
+
+## `0.6`
+This is intended to used for Llama2-chat variants 
+
+- **Reference:** https://huggingface.co/blog/llama2#how-to-prompt-llama-2
+- **Supported Tasks:** `jsquad`, `jaquad`, `jcommonsenseqa`, `jnli`, `marc_ja`, `jaqket_v2`, `xlsum_ja`, `mgsm`
+- **Usage:** Set the correct system prompt to an envrionment variable `SYSTEM_PROMPT`. 
+- **Format:**
+  e.g. JCommonsenseQA
+  ```
+  <s>[INST] <<SYS>>
+  {{ SYSTEM_PROMPT }}
+  <</SYS>>
+
+  与えられた選択肢の中から、最適な答えを選んでください。出力は以下から選択してください：
+  - choice0
+  ...
+  - choice4
+
+  質問：... [/INST] {{ answer }} </s>
+  ```
+  For formats for other tasks, please see `lm_eval/tasks/TASK.py`.
