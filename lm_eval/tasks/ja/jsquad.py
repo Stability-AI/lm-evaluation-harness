@@ -156,6 +156,10 @@ class JSQuAD(Task):
                 predictions,
                 references,
             ),  # Exact match (the normalized answer exactly match the gold answer)
+            "contains": (
+                predictions,
+                references,
+            ),  # String contains (the normalized answer contains the normalized gold answer)
             "f1": (
                 predictions,
                 references,
@@ -176,6 +180,9 @@ class JSQuAD(Task):
             "exact_match": partial(
                 self._squad_agg, "exact_match"
             ),  # Exact match (the normalized answer exactly match the gold answer)
+            "contains": partial(
+                self._squad_agg, "contains"
+            ),  # String contains (the normalized answer contains the normalized gold answer)
             "f1": partial(
                 self._squad_agg, "f1"
             ),  # The F-score of predicted tokens versus the gold answer
@@ -184,6 +191,7 @@ class JSQuAD(Task):
     def higher_is_better(self):
         return {
             "exact_match": True,  # Exact match (the normalized answer exactly match the gold answer)
+            "contains": True,  # String contains (the normalized answer contains the normalized gold answer)
             "f1": True,  # The F-score of predicted tokens versus the gold answer
         }
 

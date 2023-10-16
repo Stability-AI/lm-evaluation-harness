@@ -60,6 +60,10 @@ def f1_score(prediction, ground_truth):
     return f1
 
 
+def contains_score(prediction, ground_truth):
+    return normalize_answer(ground_truth) in normalize_answer(prediction)
+
+
 def exact_match_score(prediction, ground_truth):
     return normalize_answer(prediction) == normalize_answer(ground_truth)
 
@@ -73,7 +77,7 @@ def metric_max_over_ground_truths(metric_fn, prediction, ground_truths):
 
 
 def evaluate(dataset, predictions):
-    f1 = exact_match = total = 0
+    f1 = exact_match = contains = total = 0
     for article in dataset:
         for paragraph in article["paragraphs"]:
             for qa in paragraph["qas"]:
@@ -89,12 +93,16 @@ def evaluate(dataset, predictions):
                 exact_match += metric_max_over_ground_truths(
                     exact_match_score, prediction, ground_truths
                 )
+                contains += metric_max_over_ground_truths(
+                    contains_score, prediction, ground_truths
+                )
                 f1 += metric_max_over_ground_truths(f1_score, prediction, ground_truths)
 
     exact_match = 100.0 * exact_match / total
+    contains = 100.0 * contains / total
     f1 = 100.0 * f1 / total
 
-    return {"exact_match": exact_match, "f1": f1}
+    return {"exact_match": exact_match, "contains": contains, "f1": f1}
 
 
 if __name__ == "__main__":
