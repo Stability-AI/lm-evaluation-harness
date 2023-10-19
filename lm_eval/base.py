@@ -1,4 +1,5 @@
 import abc
+from collections import defaultdict
 from typing import Iterable
 import numpy as np
 import random
@@ -430,6 +431,8 @@ class Task(abc.ABC):
         self.download(data_dir, cache_dir, download_mode)
         self._training_docs = None
         self._fewshot_docs = None
+        self._target_to_docs = None
+        self._target_to_ratio = None
 
     def download(self, data_dir=None, cache_dir=None, download_mode=None):
         """Downloads and returns the task dataset.
@@ -515,11 +518,65 @@ class Task(abc.ABC):
         """
         return doc
 
-    def fewshot_examples(self, k, rnd):
+    def fewshot_examples(self, k, rnd, stratified=False):
+        """Returns few shot examples from training docs
+        """
         if self._training_docs is None:
             self._training_docs = list(self.training_docs())
 
-        return rnd.sample(self._training_docs, k)
+        if stratified:
+            return self._stratified_fewshot_examples(self._training_docs, k, rnd)
+        else:
+            return rnd.sample(self._training_docs, k)
+
+    def _stratified_fewshot_examples(self, docs, k, rnd):
+        """Returns few shot examples from `docs` with stratified sampling,
+        using the target from `self.doc_to_target` as the stratum.
+
+        WARNING: in order to speed up computation, this method caches the following
+        based on `docs`:
+        - `self._target_to_docs`, which stores a mapping from target to docs, and
+        - `self._target_to_ratio`, which stores a mapping from target to the ratio of docs
+        Thus, `docs` MUST be constant across different method calls.
+        This assumption should generally hold true, since for a given task `docs`
+        will typically be either one of:
+        - `self._training_docs` if the dataset for the task has training data, or
+        - `self._fewshot_docs` if the dataset for the task does not have any training data
+        """
+        if self._target_to_docs is None or self._target_to_ratio is None:
+            self._target_to_docs = defaultdict(list)
+            for doc in docs:
+                target = self.doc_to_target(doc)
+                self._target_to_docs[target].append(doc)
+
+            self._target_to_ratio = {
+                target: len(_docs) / len(docs)
+                for target, _docs in self._target_to_docs.items()
+            }
+
+        # `k` should generally be constant across different method calls
+        # (as the number of few-shot is typically fixed for a given task),
+        # but this may not be guaranteed, so calculate the number of sample
+        # for each target per method call
+        target_to_num_samples = {
+            target: int(ratio * k)
+            for target, ratio in self._target_to_ratio.items()
+        }
+        # Handle any rounding discrepancies by adjusting the counts
+        remaining_samples = k - sum(target_to_num_samples.values())
+        if remaining_samples > 0:
+            for _ in range(remaining_samples):
+                # Increment the min value
+                target = min(target_to_num_samples, key=target_to_num_samples.get)
+                target_to_num_samples[target] += 1
+
+        samples = []
+        for target, num_samples in target_to_num_samples.items():
+            samples.extend(rnd.sample(self._target_to_docs[target], num_samples))
+        # Randomly shuffle the samples to prevent potential biases
+        # that may arise from a fixed ordering of the targets
+        rnd.shuffle(samples)
+        return samples
 
     def doc_to_decontamination_query(self, doc):
         print(
@@ -592,7 +649,7 @@ class Task(abc.ABC):
 
     @utils.positional_deprecated
     def fewshot_context(
-        self, doc, num_fewshot, provide_description=None, rnd=None, description=None
+        self, doc, num_fewshot, provide_description=None, rnd=None, description=None, stratified=False
     ):
         """Returns a fewshot context string that is made up of a prepended description
         (if provided), the `num_fewshot` number of examples, and an appended prompt example.
@@ -608,6 +665,8 @@ class Task(abc.ABC):
             WARNING: This is currently a required arg although it's optionalized with a default `None`.
         :param description: str
             The task's description that will be prepended to the fewshot examples.
+        :param stratified: bool
+            When true, does stratified sampling, using the target from `self.doc_to_target` as the stratum.
         :returns: str
             The fewshot context.
         """
@@ -643,7 +702,7 @@ class Task(abc.ABC):
         else:
             # for sets with no training docs, draw from other set *but ensure no overlap with current doc*
             if self.has_training_docs():
-                fewshotex = self.fewshot_examples(k=num_fewshot, rnd=rnd)
+                fewshotex = self.fewshot_examples(k=num_fewshot, rnd=rnd, stratified=stratified)
             else:
                 if self._fewshot_docs is None:
                     self._fewshot_docs = list(
@@ -652,7 +711,10 @@ class Task(abc.ABC):
                         else self.test_docs()
                     )
 
-                fewshotex = rnd.sample(self._fewshot_docs, num_fewshot + 1)
+                if stratified:
+                    fewshotex = self._stratified_fewshot_examples(self._fewshot_docs, num_fewshot + 1, rnd=rnd)
+                else:
+                    fewshotex = rnd.sample(self._fewshot_docs, num_fewshot + 1)
 
                 # get rid of the doc that's the one we're evaluating, if it's in the fewshot
                 fewshotex = [x for x in fewshotex if x != doc][:num_fewshot]
