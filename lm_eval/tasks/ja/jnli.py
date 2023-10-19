@@ -33,7 +33,7 @@ class JNLIWithFintanPrompt(BalancedMultipleChoiceTask):
     prompt template is taken from [ChatGPT vs BERT: どちらが日本語をより理解できるのか?](https://fintan.jp/page/9126/)
     """
 
-    VERSION = 1.1
+    VERSION = 1.2
     PROMPT_VERSION = 0.2
     DATASET_PATH = "shunk031/JGLUE"
     DATASET_NAME = "JNLI"
@@ -91,6 +91,17 @@ class JNLIWithFintanPrompt(BalancedMultipleChoiceTask):
         if os.environ.get("DEBUG_MULTIPLECHOICE"):
             lls.append(rf.greedy_until(ctx, [self.SEP]))
         return lls
+
+    def fewshot_context(self, doc, num_fewshot, provide_description=None, rnd=None, description=None, stratified=False):
+        """
+        TODO: move this to `MultipleChoiceTask`.
+        Directly implementing this in `MultipleChoiceTask` will break the task versioning
+        as the metric definition will get updated, and thus we need to incrementally apply this to all
+        tasks that inherit `MultipleChoiceTask` AND bump their task `VERSION`, and
+        only after all tasks have been updated, then we can move this to `MultipleChoiceTask`.
+        """
+        # Use stratified sampling
+        return super().fewshot_context(doc, num_fewshot, provide_description, rnd, description, stratified=True)
 
 
 class JNLIWithJAAlpacaPrompt(JNLIWithFintanPrompt):
