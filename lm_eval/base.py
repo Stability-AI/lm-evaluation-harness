@@ -519,8 +519,7 @@ class Task(abc.ABC):
         return doc
 
     def fewshot_examples(self, k, rnd, stratified=False):
-        """Returns few shot examples from training docs
-        """
+        """Returns few shot examples from training docs"""
         if self._training_docs is None:
             self._training_docs = list(self.training_docs())
 
@@ -559,8 +558,7 @@ class Task(abc.ABC):
         # but this may not be guaranteed, so calculate the number of sample
         # for each target per method call
         target_to_num_samples = {
-            target: int(ratio * k)
-            for target, ratio in self._target_to_ratio.items()
+            target: int(ratio * k) for target, ratio in self._target_to_ratio.items()
         }
         # Handle any rounding discrepancies by adjusting the counts
         remaining_samples = k - sum(target_to_num_samples.values())
@@ -649,7 +647,13 @@ class Task(abc.ABC):
 
     @utils.positional_deprecated
     def fewshot_context(
-        self, doc, num_fewshot, provide_description=None, rnd=None, description=None, stratified=False
+        self,
+        doc,
+        num_fewshot,
+        provide_description=None,
+        rnd=None,
+        description=None,
+        stratified=False,
     ):
         """Returns a fewshot context string that is made up of a prepended description
         (if provided), the `num_fewshot` number of examples, and an appended prompt example.
@@ -702,7 +706,9 @@ class Task(abc.ABC):
         else:
             # for sets with no training docs, draw from other set *but ensure no overlap with current doc*
             if self.has_training_docs():
-                fewshotex = self.fewshot_examples(k=num_fewshot, rnd=rnd, stratified=stratified)
+                fewshotex = self.fewshot_examples(
+                    k=num_fewshot, rnd=rnd, stratified=stratified
+                )
             else:
                 if self._fewshot_docs is None:
                     self._fewshot_docs = list(
@@ -712,7 +718,9 @@ class Task(abc.ABC):
                     )
 
                 if stratified:
-                    fewshotex = self._stratified_fewshot_examples(self._fewshot_docs, num_fewshot + 1, rnd=rnd)
+                    fewshotex = self._stratified_fewshot_examples(
+                        self._fewshot_docs, num_fewshot + 1, rnd=rnd
+                    )
                 else:
                     fewshotex = rnd.sample(self._fewshot_docs, num_fewshot + 1)
 

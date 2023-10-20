@@ -92,7 +92,15 @@ class JNLIWithFintanPrompt(BalancedMultipleChoiceTask):
             lls.append(rf.greedy_until(ctx, [self.SEP]))
         return lls
 
-    def fewshot_context(self, doc, num_fewshot, provide_description=None, rnd=None, description=None, stratified=False):
+    def fewshot_context(
+        self,
+        doc,
+        num_fewshot,
+        provide_description=None,
+        rnd=None,
+        description=None,
+        stratified=False,
+    ):
         """
         TODO: move this to `MultipleChoiceTask`.
         Directly implementing this in `MultipleChoiceTask` will break the task versioning
@@ -101,7 +109,9 @@ class JNLIWithFintanPrompt(BalancedMultipleChoiceTask):
         only after all tasks have been updated, then we can move this to `MultipleChoiceTask`.
         """
         # Use stratified sampling
-        return super().fewshot_context(doc, num_fewshot, provide_description, rnd, description, stratified=True)
+        return super().fewshot_context(
+            doc, num_fewshot, provide_description, rnd, description, stratified=True
+        )
 
 
 class JNLIWithJAAlpacaPrompt(JNLIWithFintanPrompt):
