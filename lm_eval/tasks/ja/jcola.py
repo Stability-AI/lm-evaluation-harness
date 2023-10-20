@@ -23,7 +23,7 @@ _CITATION = """
 
 
 class JCoLA(CoLA):
-    VERSION = 0.1
+    VERSION = 0.2
     PROMPT_VERSION = 0.0
     DATASET_PATH = "shunk031/JGLUE"
     DATASET_NAME = "JCoLA"
@@ -42,6 +42,10 @@ class JCoLA(CoLA):
         ll_true, _ = rf.loglikelihood(ctx, " %s" % self.CHOICES[1])
         ll_false, _ = rf.loglikelihood(ctx, " %s" % self.CHOICES[0])
         return ll_true, ll_false
+
+    def fewshot_context(self, doc, num_fewshot, provide_description=None, rnd=None, description=None, stratified=False):
+        # Use stratified sampling
+        return super().fewshot_context(doc, num_fewshot, provide_description, rnd, description, stratified=True)
 
 
 class JCoLAWithJAAlpacaPrompt(JCoLA):
