@@ -8,6 +8,7 @@ JGLUE has been constructed from scratch without translation.
 Homepage: https://github.com/yahoojapan/JGLUE
 """
 import os
+import warnings
 import time
 
 from lm_eval.base import MultipleChoiceTask, rf
@@ -129,7 +130,7 @@ class JCommonsenseQAWithFintanPrompt(JCommonsenseQA):
         回答:
         """
         if not self.DID_WARNING:
-            print(
+            warnings.warn(
                 "#" * 100
                 + "\n\nprompt version `0.2` for JCommonsenseQA tends to output low scores! We highly recommend using `0.2.1` instead!\n\n"
                 + "#" * 100
