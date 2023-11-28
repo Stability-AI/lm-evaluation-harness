@@ -13,12 +13,14 @@ class HFLM(BaseLM):
         low_cpu_mem_usage=None,
         torch_dtype=None,
         device_map=None,
+        offload_folder=None,
         subfolder=None,
         tokenizer=None,
         batch_size=1,
         load_in_8bit: Optional[bool] = False,
         trust_remote_code: Optional[bool] = False,
         use_fast: Optional[bool] = True,
+        additional_special_tokens: Optional[str] = None,
     ):
         super().__init__()
 
@@ -49,6 +51,7 @@ class HFLM(BaseLM):
             low_cpu_mem_usage=low_cpu_mem_usage,
             torch_dtype=torch_dtype,
             device_map=device_map,
+            offload_folder=offload_folder,
             revision=revision,
             trust_remote_code=trust_remote_code,
         ).eval()
@@ -64,6 +67,7 @@ class HFLM(BaseLM):
             revision=revision,
             trust_remote_code=trust_remote_code,
             use_fast=use_fast,
+            additional_special_tokens=additional_special_tokens,
         )
         self.vocab_size = self.tokenizer.vocab_size
 

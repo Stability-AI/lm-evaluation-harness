@@ -166,6 +166,24 @@ class JCommonsenseQAWithFintanPromptV21(JCommonsenseQA):
         return input_text
 
 
+class JCommonsenseQAWithFintanPromptV22(JCommonsenseQAWithFintanPromptV21):
+    PROMPT_VERSION = "0.2.2"
+
+    def doc_to_text(self, doc):
+        """
+        与えられた選択肢の中から、最適な答えを選んでください。
+
+        選択肢：
+        - {choice0}
+        - {choice4}
+        質問：{question}
+        回答：
+        """
+        choices = "\n".join([f"- {choice}" for choice in doc["choices"]])
+        input_text = f"選択肢：\n{choices}\n質問：{doc['goal']}\n回答："  # question last
+        return input_text
+
+
 class JCommonsenseQAWithJAAlpacaPrompt(JCommonsenseQA):
     """
     This prompt format was inspired by the below data in fujiki/japanese_alpaca_data.
@@ -205,6 +223,42 @@ class JCommonsenseQAWithJAAlpacaPrompt(JCommonsenseQA):
         return f"### 指示:\n{instruction_text}\n\n### 入力:\n{input_text}\n\n### 応答:\n"
 
 
+class JCommonsenseQAWithJAAlpacaPromptV32(JCommonsenseQAWithJAAlpacaPrompt):
+    """
+    This prompt format was inspired by the below data in fujiki/japanese_alpaca_data.
+    ```
+    {
+        'instruction': 'この課題では、以下の選択肢から文の出典を特定する必要があります。\n\n出力は以下から選択してください：\n- 新聞\n- 教科書\n- オンライン記事\n- 百科事典',
+        'input': '彼はローマの政治家であり哲学者であり、史上最も偉大な軍事指導者の一人と考えられています。',
+        'output': '百科事典'
+    }
+    ```
+    Reference:
+    - data: https://huggingface.co/datasets/fujiki/japanese_alpaca_data
+    - code: https://github.com/Stability-AI/gpt-neox/blob/c130a4edc1120dccec8f02a34eb60d3e8f484cd3/finetune/finetune_base_ja.py#LL118C23-L127C11
+    """
+
+    PROMPT_VERSION = "0.3.2"
+
+    def doc_to_text(self, doc):
+        """
+        以下は、タスクを説明する指示と、文脈のある入力の組み合わせです。要求を適切に満たす応答を書きなさい。
+
+        ### 指示:
+        {instruction}
+
+        ### 入力:
+        {input}
+
+        ### 応答:
+        {response}
+        """
+        instruction_text = self.INSTRUCTION + f"\n質問：{doc['goal']}"
+        choices = "\n".join([f"- {choice}" for choice in doc["choices"]])
+        input_text = f"出力は以下から選択してください：\n{choices}"
+        return f"### 指示:\n{instruction_text}\n\n### 入力:\n{input_text}\n\n### 応答:\n"  # question first
+
+
 class JCommonsenseQAWithRinnaInstructionSFT(JCommonsenseQA):
     """
     Reference:
@@ -223,6 +277,22 @@ class JCommonsenseQAWithRinnaInstructionSFT(JCommonsenseQA):
         return f"ユーザー: {input_text}{self.SEP}システム: "
 
 
+class JCommonsenseQAWithRinnaInstructionSFTV42(JCommonsenseQAWithRinnaInstructionSFT):
+    """
+    Reference:
+    - HF Hub: https://huggingface.co/rinna/japanese-gpt-neox-3.6b-instruction-sft
+    """
+
+    PROMPT_VERSION = "0.4.2"
+
+    def doc_to_text(self, doc):
+        choices = self.SEP.join([f"- {choice}" for choice in doc["choices"]])
+        input_text = (
+            f"選択肢：{self.SEP}{choices}" + f"質問：{doc['goal']}{self.SEP}"
+        )  # question last
+        return f"ユーザー: {input_text}{self.SEP}システム: "
+
+
 class JCommonsenseQAWithRinnaBilingualInstructionSFT(
     JCommonsenseQAWithRinnaInstructionSFT
 ):
@@ -235,6 +305,24 @@ class JCommonsenseQAWithRinnaBilingualInstructionSFT(
     DESCRIPTION = "ユーザー: 与えられた選択肢の中から、最適な答えを選んでください。\nシステム: 分かりました。\n"
     SEP = "\n"
     FEWSHOT_SEP = "\n"
+
+
+class JCommonsenseQAWithRinnaBilingualInstructionSFTV52(
+    JCommonsenseQAWithRinnaBilingualInstructionSFT
+):
+    """
+    Reference:
+    - HF Hub: https://huggingface.co/rinna/bilingual-gpt-neox-4b-instruction-sft
+    """
+
+    PROMPT_VERSION = "0.5.2"
+
+    def doc_to_text(self, doc):
+        choices = self.SEP.join([f"- {choice}" for choice in doc["choices"]])
+        input_text = (
+            f"選択肢：{self.SEP}{choices}" + f"質問：{doc['goal']}{self.SEP}"
+        )  # question last
+        return f"ユーザー: {input_text}{self.SEP}システム: "
 
 
 class JCommonsenseQAWithLlama2(JCommonsenseQA):
@@ -263,6 +351,7 @@ class JCommonsenseQAWithLlama2(JCommonsenseQA):
         Insert the following prompt into `{{ user_msg }}`, which is based on prompt version 0.3
         ```
         与えられた選択肢の中から、最適な答えを選んでください。出力は以下から選択してください：
+
         - choice0
         ...
         - choice4
@@ -276,14 +365,53 @@ class JCommonsenseQAWithLlama2(JCommonsenseQA):
         return f"{instruction_text}\n\n{input_text} [/INST] "
 
 
+class JCommonsenseQAWithLlama2V62(JCommonsenseQAWithLlama2):
+    """
+    This prompt version follows the Llama2-chat's prompt format:
+    ```
+    <s>[INST] <<SYS>>
+    {{ system_prompt }}
+    <</SYS>>
+
+    {{ user_msg_1 }} [/INST] {{ model_answer_1 }} </s><s>[INST] {{ user_msg_2 }} [/INST]
+    ```
+    reference: https://huggingface.co/blog/llama2#how-to-prompt-llama-2
+    """
+
+    PROMPT_VERSION = "0.6.2"
+
+    def doc_to_text(self, doc):
+        """
+        Insert the following prompt into `{{ user_msg }}`, which is based on prompt version 0.3
+        ```
+        与えられた選択肢の中から、最適な答えを選んでください。質問：...
+
+        出力は以下から選択してください：
+        - choice0
+        ...
+        - choice4 [/INST]
+        ```
+        """
+        choices = "\n".join([f"- {choice}" for choice in doc["choices"]])
+        input_text = f"質問：{doc['goal']}"
+        instruction_text = self.INSTRUCTION + input_text
+        choices = f"出力は以下から選択してください：\n{choices}"
+        return f"{instruction_text}\n\n{choices} [/INST] "  # question first
+
+
 VERSIONS = [
     JCommonsenseQA,
     JCommonsenseQAWithFintanPrompt,
     JCommonsenseQAWithFintanPromptV21,
+    JCommonsenseQAWithFintanPromptV22,
     JCommonsenseQAWithJAAlpacaPrompt,
+    JCommonsenseQAWithJAAlpacaPromptV32,
     JCommonsenseQAWithRinnaInstructionSFT,
+    JCommonsenseQAWithRinnaInstructionSFTV42,
     JCommonsenseQAWithRinnaBilingualInstructionSFT,
+    JCommonsenseQAWithRinnaBilingualInstructionSFTV52,
     JCommonsenseQAWithLlama2,
+    JCommonsenseQAWithLlama2V62,
 ]
 
 
