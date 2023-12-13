@@ -86,6 +86,7 @@ class HuggingFaceAutoLM(BaseLM):
         device: Optional[Union[int, str]] = "cuda",
         peft: str = None,
         load_in_8bit: Optional[bool] = False,
+        load_in_4bit: Optional[bool] = False,
         trust_remote_code: Optional[bool] = False,
         use_fast: Optional[bool] = True,
         gptq_use_triton: Optional[bool] = False,
@@ -143,6 +144,9 @@ class HuggingFaceAutoLM(BaseLM):
             load_in_8bit (bool, optional, defaults to False):
                 If True, will convert the loaded model into mixed-8bit quantized model. See:
                 https://huggingface.co/docs/transformers/main/en/main_classes/model#transformers.PreTrainedModel.from_pretrained.load_in_8bit
+            load_in_4bit (bool, optional, defaults to False):
+                If True, will convert the loaded model into mixed-4bit quantized model. See:
+                https://huggingface.co/docs/transformers/main/en/main_classes/model#transformers.PreTrainedModel.from_pretrained.load_in_4bit
             trust_remote_code (bool, optional, defaults to False):
                 If True, will trust the remote code when loading the model.
             use_fast (bool, optional, defaults to True):
@@ -196,6 +200,7 @@ class HuggingFaceAutoLM(BaseLM):
                 offload_folder,
             )
         model_kwargs["load_in_8bit"] = load_in_8bit
+        model_kwargs["load_in_4bit"] = load_in_4bit
         self.model = self._create_auto_model(
             pretrained=pretrained,
             quantized=quantized,
@@ -225,7 +230,7 @@ class HuggingFaceAutoLM(BaseLM):
             # the user specified one so we force `self._device` to be the same as
             # `lm_head`'s.
             self._device = self.model.hf_device_map["lm_head"]
-        if not use_accelerate and not load_in_8bit:
+        if not use_accelerate and not load_in_8bit and not load_in_4bit:
             try:
                 self.model.to(self._device)
             except:  # noqa: E722
@@ -244,6 +249,7 @@ class HuggingFaceAutoLM(BaseLM):
         max_memory: Optional[dict] = None,
         offload_folder: Optional[str] = None,
         load_in_8bit: Optional[bool] = False,
+        load_in_4bit: Optional[bool] = False,
         trust_remote_code: Optional[bool] = False,
         torch_dtype: Optional[Union[str, torch.dtype]] = None,
         gptq_use_triton: Optional[bool] = False,
@@ -257,6 +263,7 @@ class HuggingFaceAutoLM(BaseLM):
                 max_memory=max_memory,
                 offload_folder=offload_folder,
                 load_in_8bit=load_in_8bit,
+                load_in_4bit=load_in_4bit,
                 trust_remote_code=trust_remote_code,
                 torch_dtype=torch_dtype,
             )
@@ -288,6 +295,7 @@ class HuggingFaceAutoLM(BaseLM):
         max_memory: Optional[dict] = None,
         offload_folder: Optional[str] = None,
         load_in_8bit: Optional[bool] = False,
+        load_in_4bit: Optional[bool] = False,
         trust_remote_code: Optional[bool] = False,
         torch_dtype: Optional[Union[str, torch.dtype]] = None,
     ):
@@ -299,6 +307,7 @@ class HuggingFaceAutoLM(BaseLM):
             max_memory=max_memory,
             offload_folder=offload_folder,
             load_in_8bit=load_in_8bit,
+            load_in_4bit=load_in_4bit,
             trust_remote_code=trust_remote_code,
             torch_dtype=torch_dtype,
         )
