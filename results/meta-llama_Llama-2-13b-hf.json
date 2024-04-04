@@ -1,0 +1,84 @@
+{
+  "results": {
+    "arc_challenge": {
+      "acc": 0.47525597269624575,
+      "acc_stderr": 0.014593487694937738,
+      "acc_norm": 0.4880546075085324,
+      "acc_norm_stderr": 0.014607220340597171
+    },
+    "arc_easy": {
+      "acc": 0.7891414141414141,
+      "acc_stderr": 0.008370304468544138,
+      "acc_norm": 0.7651515151515151,
+      "acc_norm_stderr": 0.008698328309154273
+    },
+    "boolq": {
+      "acc": 0.8214067278287461,
+      "acc_stderr": 0.0066989111059201165
+    },
+    "hellaswag": {
+      "acc": 0.6020713005377415,
+      "acc_stderr": 0.004884702412456089,
+      "acc_norm": 0.7962557259510058,
+      "acc_norm_stderr": 0.004019578428155064
+    },
+    "lambada_openai": {
+      "ppl": 3.030676887213823,
+      "ppl_stderr": 0.05543620861251888,
+      "acc": 0.7653793906462255,
+      "acc_stderr": 0.0059038257910711085
+    },
+    "openbookqa": {
+      "acc": 0.346,
+      "acc_stderr": 0.021294951277234637,
+      "acc_norm": 0.452,
+      "acc_norm_stderr": 0.02227969410784342
+    },
+    "piqa": {
+      "acc": 0.794885745375408,
+      "acc_stderr": 0.009420971671017919,
+      "acc_norm": 0.8035908596300326,
+      "acc_norm_stderr": 0.009269232237679913
+    },
+    "sciq": {
+      "acc": 0.952,
+      "acc_stderr": 0.006763264133666677,
+      "acc_norm": 0.933,
+      "acc_norm_stderr": 0.00791034598317755
+    },
+    "siqa": {
+      "acc": 0.43500511770726713,
+      "acc_stderr": 0.011218074465506494,
+      "acc_norm": 0.4657113613101331,
+      "acc_norm_stderr": 0.011287435053883958
+    },
+    "winogrande": {
+      "acc": 0.7261247040252565,
+      "acc_stderr": 0.012533292732620292
+    }
+  },
+  "versions": {
+    "arc_challenge": 0,
+    "arc_easy": 0,
+    "boolq": 1,
+    "hellaswag": 0,
+    "lambada_openai": 0,
+    "openbookqa": 0,
+    "piqa": 0,
+    "sciq": 0,
+    "siqa": 0,
+    "winogrande": 0
+  },
+  "config": {
+    "model": "gpt2",
+    "model_args": "pretrained=meta-llama/Llama-2-13b-hf,dtype=,trust_remote_code=True,low_cpu_mem_usage=True,use_fast=False,add_special_tokens=True",
+    "num_fewshot": 0,
+    "batch_size": "8",
+    "batch_sizes": [],
+    "device": "cuda:6",
+    "no_cache": true,
+    "limit": null,
+    "bootstrap_iters": 100000,
+    "description_dict": {}
+  }
+}
