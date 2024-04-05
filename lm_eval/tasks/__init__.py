@@ -56,6 +56,11 @@ from . import gsm8k
 from . import storycloze
 from . import toxigen
 from . import crowspairs
+from . import xcopa
+from . import xnli
+from . import xstorycloze
+from . import xwinograd
+from . import lambada_multilingual_deepl
 
 ########################################
 # Translation tasks
@@ -322,6 +327,11 @@ TASK_REGISTRY = {
     # "storycloze_2016": storycloze.StoryCloze2016,
     # "storycloze_2018": storycloze.StoryCloze2018,
     # "sat": sat.SATAnalogies,
+    **xcopa.construct_tasks(),
+    **xstorycloze.create_all_tasks(),
+    **xwinograd.create_all_tasks(),
+    **xnli.construct_tasks(),
+    **lambada_multilingual_deepl.construct_tasks(),
 }
 
 
