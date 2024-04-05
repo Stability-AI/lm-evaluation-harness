@@ -1,0 +1,91 @@
+{
+  "results": {
+    "arc_challenge": {
+      "acc": 0.5093856655290102,
+      "acc_stderr": 0.014608816322065,
+      "acc_norm": 0.5469283276450512,
+      "acc_norm_stderr": 0.01454689205200563
+    },
+    "arc_easy": {
+      "acc": 0.8000841750841751,
+      "acc_stderr": 0.008206531105458884,
+      "acc_norm": 0.7992424242424242,
+      "acc_norm_stderr": 0.008219462692991513
+    },
+    "boolq": {
+      "acc": 0.8547400611620795,
+      "acc_stderr": 0.00616286277962426
+    },
+    "hellaswag": {
+      "acc": 0.571400119498108,
+      "acc_stderr": 0.004938643787869545,
+      "acc_norm": 0.7592113124875522,
+      "acc_norm_stderr": 0.004266884542927093
+    },
+    "lambada_openai": {
+      "ppl": 3.66818400505825,
+      "ppl_stderr": 0.07576429458482457,
+      "acc": 0.6844556568988939,
+      "acc_stderr": 0.00647462963637158
+    },
+    "openbookqa": {
+      "acc": 0.328,
+      "acc_stderr": 0.021017027165175495,
+      "acc_norm": 0.422,
+      "acc_norm_stderr": 0.022109039310618556
+    },
+    "piqa": {
+      "acc": 0.7845484221980413,
+      "acc_stderr": 0.009592463115658114,
+      "acc_norm": 0.7927094668117519,
+      "acc_norm_stderr": 0.00945784469995237
+    },
+    "sciq": {
+      "acc": 0.974,
+      "acc_stderr": 0.005034813735318218,
+      "acc_norm": 0.965,
+      "acc_norm_stderr": 0.005814534272734929
+    },
+    "siqa": {
+      "acc": 0.46827021494370524,
+      "acc_stderr": 0.011291266029595197,
+      "acc_norm": 0.5122824974411464,
+      "acc_norm_stderr": 0.011310656364332615
+    },
+    "truthfulqa_mc": {
+      "mc1": 0.28151774785801714,
+      "mc1_stderr": 0.01574402724825605,
+      "mc2": 0.42448355031125945,
+      "mc2_stderr": 0.014715691775926309
+    },
+    "winogrande": {
+      "acc": 0.7269139700078927,
+      "acc_stderr": 0.012522020105869456
+    }
+  },
+  "versions": {
+    "arc_challenge": 0,
+    "arc_easy": 0,
+    "boolq": 1,
+    "hellaswag": 0,
+    "lambada_openai": 0,
+    "openbookqa": 0,
+    "piqa": 0,
+    "sciq": 0,
+    "siqa": 0,
+    "truthfulqa_mc": 1,
+    "winogrande": 0
+  },
+  "config": {
+    "model": "gpt2",
+    "model_args": "pretrained=01-ai/Yi-9B,dtype=auto,trust_remote_code=True,low_cpu_mem_usage=True,use_fast=False,add_special_tokens=False",
+    "num_fewshot": 0,
+    "batch_size": "8",
+    "batch_sizes": [],
+    "device": "cuda:2",
+    "no_cache": true,
+    "limit": null,
+    "bootstrap_iters": 100000,
+    "description_dict": {}
+  }
+}
