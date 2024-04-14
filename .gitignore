@@ -1,5 +1,7 @@
-env
+env/
+.env/
 *.pyc
 data/
 lm_cache
+lm_eval.egg-info/
 .idea
