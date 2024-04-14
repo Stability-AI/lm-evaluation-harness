@@ -10,7 +10,9 @@ from pytablewriter import MarkdownTableWriter
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--dir", help="Results file with MMMLU (Hendrycks Test) results", default="results")
+parser.add_argument(
+    "--dir", help="Results file with MMMLU (Hendrycks Test) results", default="results"
+)
 args = parser.parse_args()
 
 
@@ -123,13 +125,12 @@ def main(args):
 
         # Handle results data
         results = data["results"]
-        mmlu_results = {r: v for r, v in results.items() if r.startswith("hendrycksTest-")}
+        mmlu_results = {
+            r: v for r, v in results.items() if r.startswith("hendrycksTest-")
+        }
 
         # Bin the category accuracies for this model
-        category_acc = {
-            c: []
-            for c in categories
-        }
+        category_acc = {c: [] for c in categories}
         print(category_acc)
         for subcategory, category_metrics in mmlu_results.items():
             # Grab the category by its subcategory name
@@ -165,6 +166,7 @@ def main(args):
         flavor="github",
     )
     writer.dump("mmlu_results.md")
+
 
 if __name__ == "__main__":
     main(args)
